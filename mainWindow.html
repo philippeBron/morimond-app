@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="utf-8" />
+    <link rel="stylesheet" href="./assets/css/bootstrap.css">
+    <link rel="stylesheet" href="./assets/css/bootstrap-theme.css">
+    <script src="./assets/js/bootstrap.js"></script>
+
+    <script src="./fouilles.js"></script>
+    <title>Corroyage de Morimond</title>
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <div class="row">
+                <div class="col-sm-2">
+                    <img src="./assets/img/arton218-21877.png" alt="Morimond" width=100%/>
+                </div>
+                <div class="col-sm-10 text-center">
+                    <h1>Carroyage du site archéologique <br> de l'abbaye de Morimond</h1>
+                </div>
+            </div>
+        </header>
+        <input type="button" onclick="loadDB('./base_de_donnees_compileeb3.xlsx')" value="Chargement">
+        <input type="button" onclick="init()" value="init">
+        <p>Le menu ci-dessous permet de sélectionner la catégorie ou l'année de fouille à projeter sur le fond de carte du chantier de l'abbaye de Morimond.</p>
+        <div class="row">
+            <div class="col-sm-6">
+                <h2>Choix de la catégorie <span class="glyphicon glyphicon-list-alt"></span></h2>
+                <div class="row">
+                    <div>
+                        <label>Catégogie</label>
+                        <select name="categorie" id="categorie"></select>
+                    </div>
+                    <div>
+                        <input type="button" value="Valider" onclick="showCategorieMap('categorie')">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <h2>Choix de l'année <span class="glyphicon glyphicon-calendar"></span></h2>
+                <div class="row">
+                    <div>
+                        <label>Année</label>
+                        <select name="annee" id="annee"></select>
+                    </div>
+                    <div>
+                        <input type="button" value="Valider" onclick="showYearMap('annee')">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-sm-12">
+                <h2>Choix de l'année et de la catégorie <span class="glyphicon glyphicon-calendar"></span> <span class="glyphicon glyphicon-list-alt"></span></h2>
+                <div class="row">
+                    <div>
+                        <label>Année</label>
+                        <select name="annee2" id="annee2"></select>
+                        <label>Catégogie</label>
+                        <select name="categorie2" id="categorie2"></select>
+                    </div>
+                    <div>
+                        <input type="button" value="Valider" onclick="showYearCategorieMap('annee2', 'categorie2')">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-sm-12">
+                <canvas id="carroyage">
+                    <p>Carroyage du site de l'abbaye de Morimond</p>
+                </canvas>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
