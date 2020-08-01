@@ -4,24 +4,45 @@
     <title>Chargement des données</title>
 </head>
 <body>
-    <form>
-        <div>
-            <label>Fichier</label>
-            <input type="file" id="file" autofocus>
+    <div class="row">
+        <div class="col-sm-12">
+            <form id="data-form">
+                <div>
+                    <label>Fichier</label>
+                    <input type="file" id="data-file" autofocus>
+                </div>
+                <button type="submit">Charger</button>
+            </form>
         </div>
-        <button type="submit">Charger</button>
-    </form>
+        <hr>
+        <div class="col-sm-12">
+            <form id="carroyage-form">
+                <div>
+                    <label>Fichier</label>
+                    <input type="file" id="carroyage-file" autofocus>
+                </div>
+                <button type="submit">Charger</button>
+            </form>
+        </div>
+    </div>
     
     <script type="text/javascript">
         const electron = require('electron')
         const { ipcRenderer } = electron
         
-        document.querySelector('form').addEventListener('submit', submitForm)
+        document.querySelector('#data-form').addEventListener('submit', submitDataForm)
+        document.querySelector('#carroyage-form').addEventListener('submit', submitCarraoyageForm)
         
-        function submitForm(e) {
+        function submitDataForm(e) {
             e.preventDefault()
-            const file = document.querySelector('#file').value
-            ipcRenderer.send('file:load', file)
+            const file = document.querySelector('#data-file').value
+            ipcRenderer.send('data:load', file)
+        }
+        
+        function submitCarraoyageForm(e) {
+            e.preventDefault()
+            const file = document.querySelector('#carroyage-file').value
+            ipcRenderer.send('carroyage:load', file)
         }
     </script>
 </body>

@@ -59,10 +59,17 @@ function createAddWindow() {
     })
 }
 
-// Catch load:file
-ipcMain.on('file:load', (e, file) => {
+// Catch data:file
+ipcMain.on('data:load', (e, file) => {
     console.log(file)
-    mainWindow.webContents.send('file:load', file)
+    mainWindow.webContents.send('data:load', file)
+    loadWindow.close()
+})
+
+// Catch carroyage:file
+ipcMain.on('carroyage:load', (e, file) => {
+    console.log(file)
+    mainWindow.webContents.send('carroyage:load', file)
     loadWindow.close()
 })
 
