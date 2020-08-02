@@ -5,10 +5,17 @@
     <link rel="stylesheet" href="./assets/css/bootstrap-theme.css">
     <script src="./assets/js/bootstrap.js"></script>
 
-    <script src="./fouilles.js"></script>
+    <script src="./fouilles.js">
+        // const electron = require('electron')
+        // const { ipcRenderer } = electron
+
+        // ipcRenderer.on('data:load', (e, file) => {
+        //     console.log(file)
+        // })
+    </script>
     <title>Corroyage de Morimond</title>
 </head>
-<body>
+<body onload="initApp()">
     <div class="container">
         <header class="page-header">
             <div class="row">
@@ -20,8 +27,8 @@
                 </div>
             </div>
         </header>
-        <input type="button" onclick="loadDB('./base_de_donnees_compileeb3.xlsx')" value="Chargement">
-        <input type="button" onclick="init()" value="init">
+        <!-- <input type="button" onclick="loadDB('./base_de_donnees_compileeb3.xlsx')" value="Chargement">
+        <input type="button" onclick="init()" value="init"> -->
         <p>Le menu ci-dessous permet de sélectionner la catégorie ou l'année de fouille à projeter sur le fond de carte du chantier de l'abbaye de Morimond.</p>
         <div class="row">
             <div class="col-sm-6">
@@ -67,13 +74,11 @@
             </div>
         </div>
         <hr/>
-        <div class="row">
-            <div class="col-sm-12">
-                <canvas id="carroyage">
-                    <p>Carroyage du site de l'abbaye de Morimond</p>
-                </canvas>
-            </div>
-        </div>
+    </div>
+    <div>
+        <canvas id="carroyage">
+            <p>Carroyage du site de l'abbaye de Morimond</p>
+        </canvas>
     </div>
 </body>
 </html>

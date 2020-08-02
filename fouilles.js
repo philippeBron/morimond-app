@@ -39,7 +39,7 @@ function loadDB(file) {
     })
 }
 
-function init() {
+function initApp() {
     const db = require('electron-db')
     const path = require('path')
     const location = path.join(__dirname, './')
@@ -56,7 +56,7 @@ function init() {
                 data.forEach(element => {
                     let yearExists = false
                     let categorieExists = false
-                    if(element.date !== 'Date') {
+                    if(element.date !== null) {
                         for (let i = 0; i < years.length; i++) {
                             if (element.date === years[i]) {
                                 yearExists = true
@@ -66,7 +66,10 @@ function init() {
                             years.push(element.date)
                         }
                     }
+                    // sort years
                     years.sort()
+                    //reverse years order
+                    years.reverse()
                     if(element.categorie !== 'Categorie') {
                         for (let i = 0; i < categories.length; i++) {
                             if (element.categorie.toLowerCase() === categories[i]) {
@@ -348,6 +351,28 @@ function showCategorieMap(categorie) {
     image.onload = function() {
         ctx.drawImage(image, 0, 0);
         //ctx.fillRect(121, 96, 106, 106);
+        // legende des couleurs
+        ctx.fillStyle = 'rgba(254, 254, 177, 0.80)';
+        ctx.fillRect(15 + (20*106), -10 + (3*106), 106, 106);
+        ctx.fillStyle = 'black';
+        ctx.font = '36px arial';
+        ctx.fillText("de 1 à 5", 15 + (21*106) + 15, -10 + (3*106) + 65);
+        ctx.fillStyle = 'rgba(253, 175, 79, 0.80)';
+        ctx.fillRect(15 + (20*106), -10 + (4*106), 106, 106);
+        ctx.fillStyle = 'black';
+        ctx.font = '36px arial';
+        ctx.fillText("de 6 à 10", 15 + (21*106) + 15, -10 + (4*106) + 65);
+        ctx.fillStyle = 'rgba(237, 80, 40, 0.80)';
+        ctx.fillRect(15 + (20*106), -10 + (5*106), 106, 106);
+        ctx.fillStyle = 'black';
+        ctx.font = '36px arial';
+        ctx.fillText("de 11 à 15", 15 + (21*106) + 15, -10 + (5*106) + 65);
+        ctx.fillStyle = 'rgba(100, 23, 14, 0.80)';
+        ctx.fillRect(15 + (20*106), -10 + (6*106), 106, 106);
+        ctx.fillStyle = 'black';
+        ctx.font = '36px arial';
+        ctx.fillText("supérieur à 16", 15 + (21*106) + 15, -10 + (6*106) + 65);
+                    
         for (let posY = -10; posY < height; posY += 106) {
             for (let posX = 15; posX < width; posX += 106) {
                 ctx.strokeStyle = 'rgb(0, 0, 0)';
@@ -444,6 +469,28 @@ function showYearCategorieMap(annee, categorie) {
     image.onload = function() {
         ctx.drawImage(image, 0, 0);
         //ctx.fillRect(121, 96, 106, 106);
+        // legende des couleurs
+        ctx.fillStyle = 'rgba(254, 254, 177, 0.80)';
+        ctx.fillRect(15 + (20*106), -10 + (3*106), 106, 106);
+        ctx.fillStyle = 'black';
+        ctx.font = '36px arial';
+        ctx.fillText("de 1 à 5", 15 + (21*106) + 15, -10 + (3*106) + 65);
+        ctx.fillStyle = 'rgba(253, 175, 79, 0.80)';
+        ctx.fillRect(15 + (20*106), -10 + (4*106), 106, 106);
+        ctx.fillStyle = 'black';
+        ctx.font = '36px arial';
+        ctx.fillText("de 6 à 10", 15 + (21*106) + 15, -10 + (4*106) + 65);
+        ctx.fillStyle = 'rgba(237, 80, 40, 0.80)';
+        ctx.fillRect(15 + (20*106), -10 + (5*106), 106, 106);
+        ctx.fillStyle = 'black';
+        ctx.font = '36px arial';
+        ctx.fillText("de 11 à 15", 15 + (21*106) + 15, -10 + (5*106) + 65);
+        ctx.fillStyle = 'rgba(100, 23, 14, 0.80)';
+        ctx.fillRect(15 + (20*106), -10 + (6*106), 106, 106);
+        ctx.fillStyle = 'black';
+        ctx.font = '36px arial';
+        ctx.fillText("supérieur à 16", 15 + (21*106) + 15, -10 + (6*106) + 65);
+
         for (let posY = -10; posY < height; posY += 106) {
             for (let posX = 15; posX < width; posX += 106) {
                 ctx.strokeStyle = 'rgb(0, 0, 0)';

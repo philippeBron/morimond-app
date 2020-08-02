@@ -13,7 +13,7 @@ let loadWindow
 app.on('ready', () => {
     // Create a new window
     mainWindow = new BrowserWindow({
-        width: 1024,
+        width: 1200,
         height: 1024,
         webPreferences: {
             nodeIntegration: true
@@ -61,9 +61,9 @@ function createAddWindow() {
 
 // Catch data:file
 ipcMain.on('data:load', (e, file) => {
-    console.log(file)
-    mainWindow.webContents.send('data:load', file)
-    loadWindow.close()
+    loadDB(file)
+    // mainWindow.webContents.send('data:load', file)
+    // loadWindow.close()
 })
 
 // Catch carroyage:file
@@ -79,9 +79,9 @@ const mainMenuTemplate = [
         label: 'Fichier',
         submenu: [
             {
-                label: 'Chargment',
+                label: 'Chargment des données',
                 click(){
-                    createAddWindow()
+                    loadDB('./base_de_donnees_compilee.xlsx')
                 }
             },
             {
@@ -118,3 +118,62 @@ if (process.env.NODE_ENV != 'production') {
         ]
     })
 }
+
+function loadDB(file) {
+    const readXLsxFile = require('read-excel-file/node')
+    const db = require('electron-db')
+    const location = path.join(__dirname, './')
+    db.createTable('fouilles', location, (succ, msg) => {
+        console.log("Success: " + succ)
+        console.log("Message: " + msg)
+    })
+
+    if(db.valid('fouilles', location)) {         
+        db.clearTable('fouilles', location, (succ, msg) => {
+            console.log(`Success: ${succ}`)
+            console.log(`Message: ${msg}`)
+        })
+    }
+
+    readXLsxFile(file).then((rows) => {
+        rows.forEach(element => {
+            let obj = new Object()
+
+            obj.zone = element[0]
+            obj.categorie = element[1]
+            obj.sousCategorie = element[2]
+            obj.quantite = element[3]
+            obj.complement = element[4]
+            obj.us = element[5]
+            obj.date = ExcelDateToJSDate(element[6]).getFullYear()
+
+            console.log(obj)
+            
+            if(db.valid('fouilles', location)) {
+                db.insertTableContent('fouilles', location, obj, (succ, msg) => {
+                    console.log(`Success: ${succ}`)
+                    console.log(`Message: ${msg}`)
+                })
+            }
+        })
+    })
+}
+
+function ExcelDateToJSDate(serial) {
+    var utc_days  = Math.floor(serial - 25569)
+    var utc_value = utc_days * 86400;                                        
+    var date_info = new Date(utc_value * 1000)
+ 
+    var fractional_day = serial - Math.floor(serial) + 0.0000001
+ 
+    var total_seconds = Math.floor(86400 * fractional_day)
+ 
+    var seconds = total_seconds % 60
+ 
+    total_seconds -= seconds
+ 
+    var hours = Math.floor(total_seconds / (60 * 60))
+    var minutes = Math.floor(total_seconds / 60) % 60
+ 
+    return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds)
+ }
