@@ -80,8 +80,14 @@ const mainMenuTemplate = [
         submenu: [
             {
                 label: 'Chargment des données',
-                click(){
-                    loadDB('./base_de_donnees_compilee.xlsx')
+                click() {
+                    dataLoab('./base_de_donnees_compilee.xlsx')
+                }
+            },
+            {
+                label: 'Chargement du carroyage',
+                click() {
+                    carroyageLoad('./carroyage.xlsx')
                 }
             },
             {
@@ -119,7 +125,7 @@ if (process.env.NODE_ENV != 'production') {
     })
 }
 
-function loadDB(file) {
+function dataLoab(file) {
     const readXLsxFile = require('read-excel-file/node')
     const db = require('electron-db')
     const location = path.join(__dirname, './')
@@ -151,6 +157,42 @@ function loadDB(file) {
             
             if(db.valid('fouilles', location)) {
                 db.insertTableContent('fouilles', location, obj, (succ, msg) => {
+                    console.log(`Success: ${succ}`)
+                    console.log(`Message: ${msg}`)
+                })
+            }
+        })
+    })
+}
+
+function carroyageLoad(file) {
+    const readXLsxFile = require('read-excel-file/node')
+    const db = require('electron-db')
+    const location = path.join(__dirname, './')
+
+    db.createTable('carroyage', location, (succ, msg) => {
+        console.log("Success: " + succ)
+        console.log("Message: " + msg)
+    })
+
+    if(db.valid('carroyage', location)) {
+        db.clearTable('carroyage', location, (succ, msg) => {
+            console.log(`Success: ${succ}`)
+            console.log(`Message: ${msg}`)
+        })
+    }
+
+    readXLsxFile(file).then((rows) => {
+        rows.forEach(element => {
+            let tab = []
+            for (let index = 0; index < 40; index++) {
+                tab.push(element[index])
+            }
+
+            console.log(tab)
+            
+            if(db.valid('carroyage', location)) {
+                db.insertTableContent('carroyage', location, tab, (succ, msg) => {
                     console.log(`Success: ${succ}`)
                     console.log(`Message: ${msg}`)
                 })

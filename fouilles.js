@@ -1,44 +1,3 @@
-function loadDB(file) {
-    const readXLsxFile = require('read-excel-file/node')
-    const db = require('electron-db')
-    const path = require('path')
-    const location = path.join(__dirname, './')
-    db.createTable('fouilles', location, (succ, msg) => {
-        console.log("Success: " + succ)
-        console.log("Message: " + msg)
-    })
-
-    if(db.valid('fouilles', location)) {         
-        db.clearTable('fouilles', location, (succ, msg) => {
-            console.log(`Success: ${succ}`)
-            console.log(`Message: ${msg}`)
-        })
-    }
-
-    readXLsxFile(file).then((rows) => {
-        rows.forEach(element => {
-            let obj = new Object()
-
-            obj.zone = element[0]
-            obj.categorie = element[1]
-            obj.sousCategorie = element[2]
-            obj.quantite = element[3]
-            obj.complement = element[4]
-            obj.us = element[5]
-            obj.date = ExcelDateToJSDate(element[6]).getFullYear()
-
-            console.log(obj)
-            
-            if(db.valid('fouilles', location)) {
-                db.insertTableContent('fouilles', location, obj, (succ, msg) => {
-                    console.log(`Success: ${succ}`)
-                    console.log(`Message: ${msg}`)
-                })
-            }
-        })
-    })
-}
-
 function initApp() {
     const db = require('electron-db')
     const path = require('path')
@@ -202,9 +161,10 @@ function showYearMap(annee) {
     const height = canvas.height = (5318);
     let x = y = 0;
 
-    const carroyage = require('./carroyage.json')
+    const mapData = require('./carroyage.json')
     const year = parseInt(document.getElementById(annee).value)
 
+    // get data
     let zones = []
     let zoneData = []
             
@@ -212,8 +172,7 @@ function showYearMap(annee) {
         db.getRows('fouilles', location, {
             date: year
         }, (succ, data) => {
-            if(succ) {
-                
+            if(succ) {                
                 data.forEach(element => {
                     let exists = false
 
@@ -260,15 +219,15 @@ function showYearMap(annee) {
         for (let posY = -10; posY < height; posY += 106) {
             for (let posX = 15; posX < width; posX += 106) {
                 ctx.strokeStyle = 'rgb(0, 0, 0)';
-                //ctx.lineWidth = 3;
                 ctx.strokeRect(posX, posY, 106, 106);
                 ctx.fillStyle = 'black';
                 ctx.font = '36px arial';
-                //ctx.fillText(y+";"+x, posX+10, posY+60);
-                if (carroyage[y][x] != ".") {
-                    ctx.fillText(carroyage[y][x], posX+30, posY+65);
+                
+                // display data on map
+                if (mapData.carroyage[y][x] != ".") {
+                    ctx.fillText(mapData.carroyage[y][x], posX+30, posY+65);
                     for (let index = 0; index < zoneData.length; index++) {
-                        if (zoneData[index].zone == carroyage[y][x]) {
+                        if (zoneData[index].zone == mapData.carroyage[y][x]) {
                             if (zoneData[index].quantite == 0){
                                 ctx.fillStyle = 'rgba(0,255,0, 0.50)';
                             } else if (zoneData[index].quantite < 6) {
@@ -301,7 +260,7 @@ function showCategorieMap(categorie) {
     const height = canvas.height = (5318);
     let x = y = 0;
 
-    const carroyage = require('./carroyage.json')
+    const mapData = require('./carroyage.json')
 
     let zoneData = []
             
@@ -381,10 +340,10 @@ function showCategorieMap(categorie) {
                 ctx.fillStyle = 'black';
                 ctx.font = '36px arial';
                 //ctx.fillText(y+";"+x, posX+10, posY+60);
-                if (carroyage[y][x] != ".") {
-                    ctx.fillText(carroyage[y][x], posX+30, posY+65);
+                if (mapData.carroyage[y][x] != ".") {
+                    ctx.fillText(mapData.carroyage[y][x], posX+30, posY+65);
                     for (let index = 0; index < zoneData.length; index++) {
-                        if (zoneData[index].zone == carroyage[y][x]) {
+                        if (zoneData[index].zone == mapData.carroyage[y][x]) {
                             if (zoneData[index].quantite == 0){
                                 ctx.fillStyle = 'rgba(0,255,0, 0.50)';
                             } else if (zoneData[index].quantite < 6) {
@@ -418,7 +377,7 @@ function showYearCategorieMap(annee, categorie) {
     let x = y = 0;
 
     const year = parseInt(document.getElementById(annee).value)
-    const carroyage = require('./carroyage.json')
+    const mapData = require('./carroyage.json')
 
     let zoneData = []
             
@@ -499,10 +458,10 @@ function showYearCategorieMap(annee, categorie) {
                 ctx.fillStyle = 'black';
                 ctx.font = '36px arial';
                 //ctx.fillText(y+";"+x, posX+10, posY+60);
-                if (carroyage[y][x] != ".") {
-                    ctx.fillText(carroyage[y][x], posX+30, posY+65);
+                if (mapData.carroyage[y][x] != ".") {
+                    ctx.fillText(mapData.carroyage[y][x], posX+30, posY+65);
                     for (let index = 0; index < zoneData.length; index++) {
-                        if (zoneData[index].zone == carroyage[y][x]) {
+                        if (zoneData[index].zone == mapData.carroyage[y][x]) {
                             if (zoneData[index].quantite == 0){
                                 ctx.fillStyle = 'rgba(0,255,0, 0.50)';
                             } else if (zoneData[index].quantite < 6) {
