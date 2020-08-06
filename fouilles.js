@@ -6,6 +6,7 @@ function initApp() {
     const selectAnnee2 = document.getElementById('annee2')
     const selectCategorie = document.getElementById('categorie')
     const selectCategorie2 = document.getElementById('categorie2')
+    const divMap = document.getElementById('map')
     let years = []
     let categories = []
 
@@ -69,6 +70,7 @@ function initApp() {
             }
         })
     }
+    divMap.style.visibility = "hidden"
 }
 
 function getAll() {
@@ -152,13 +154,19 @@ function ExcelDateToJSDate(serial) {
     return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds)
  }
 
-function showYearMap(annee) {
+function showYearMap(annee, scale) {
     const db = require('electron-db')
     const path = require('path')
     const location = path.join(__dirname, '/')
-    const canvas = document.querySelector('#carroyage');
-    const width = canvas.width = (4218);
-    const height = canvas.height = (5318);
+    const canvas = document.querySelector('#carroyage')
+    const divMap = document.getElementById('map')
+    const width = canvas.width = (4218)
+    const height = canvas.height = (5318)
+
+    // load map background
+    const image = new Image()
+    image.src = './assets/img/plan-v2_2019.jpg'
+
     let x = y = 0;
 
     const mapData = require('./carroyage.json')
@@ -167,7 +175,8 @@ function showYearMap(annee) {
     // get data
     let zones = []
     let zoneData = []
-            
+    
+    // get data from database
     if(db.valid('fouilles', location)) {
         db.getRows('fouilles', location, {
             date: year
@@ -206,18 +215,14 @@ function showYearMap(annee) {
 
     const ctx = canvas.getContext('2d');
 
-    ctx.scale(0.25, 0.25);
-
-    // load map
-    const image = new Image();
-    image.src = './assets/img/plan-v2_2019.jpg';
-
     // display map with carroyage
     image.onload = function() {
+        // display map background
         ctx.drawImage(image, 0, 0);
-        //ctx.fillRect(121, 96, 106, 106);
-        for (let posY = -10; posY < height; posY += 106) {
-            for (let posX = 15; posX < width; posX += 106) {
+
+        // draw grid
+        for (let posY = -10; posY < image.height; posY += 106) {
+            for (let posX = 15; posX < image.width; posX += 106) {
                 ctx.strokeStyle = 'rgb(0, 0, 0)';
                 ctx.strokeRect(posX, posY, 106, 106);
                 ctx.fillStyle = 'black';
@@ -249,21 +254,34 @@ function showYearMap(annee) {
             x = 0;
         }
     }
+
+    // set scale
+    ctx.scale(scale, scale)
+
+    // show map
+    divMap.style.visibility = "visible"
 }
 
-function showCategorieMap(categorie) {
+function showCategorieMap(categorie, scale) {
     const db = require('electron-db')
     const path = require('path')
-    const location = path.join(__dirname, '/')   
-    const canvas = document.querySelector('#carroyage');
+    const location = path.join(__dirname, '/')
+    const canvas = document.querySelector('#carroyage')
+    const divMap = document.getElementById('map')
     const width = canvas.width = (4218);
     const height = canvas.height = (5318);
+    
+    // load map background
+    const image = new Image();
+    image.src = './assets/img/plan-v2_2019.jpg'
+
     let x = y = 0;
 
     const mapData = require('./carroyage.json')
 
     let zoneData = []
-            
+    
+    // get data from database            
     if(db.valid('fouilles', location)) {
         db.getRows('fouilles', location, {
             categorie: document.getElementById(categorie).value
@@ -300,16 +318,11 @@ function showCategorieMap(categorie) {
 
     const ctx = canvas.getContext('2d');
 
-    ctx.scale(0.25, 0.25);
-
-    // load map
-    const image = new Image();
-    image.src = './assets/img/plan-v2_2019.jpg';
-
     // display map with carroyage
     image.onload = function() {
+        // display map background
         ctx.drawImage(image, 0, 0);
-        //ctx.fillRect(121, 96, 106, 106);
+        
         // legende des couleurs
         ctx.fillStyle = 'rgba(254, 254, 177, 0.80)';
         ctx.fillRect(15 + (20*106), -10 + (3*106), 106, 106);
@@ -331,15 +344,16 @@ function showCategorieMap(categorie) {
         ctx.fillStyle = 'black';
         ctx.font = '36px arial';
         ctx.fillText("supérieur à 16", 15 + (21*106) + 15, -10 + (6*106) + 65);
-                    
-        for (let posY = -10; posY < height; posY += 106) {
-            for (let posX = 15; posX < width; posX += 106) {
+
+        // draw grid
+        for (let posY = -10; posY < image.height; posY += 106) {
+            for (let posX = 15; posX < image.width; posX += 106) {
                 ctx.strokeStyle = 'rgb(0, 0, 0)';
-                //ctx.lineWidth = 3;
                 ctx.strokeRect(posX, posY, 106, 106);
                 ctx.fillStyle = 'black';
                 ctx.font = '36px arial';
-                //ctx.fillText(y+";"+x, posX+10, posY+60);
+                
+                // display data on map
                 if (mapData.carroyage[y][x] != ".") {
                     ctx.fillText(mapData.carroyage[y][x], posX+30, posY+65);
                     for (let index = 0; index < zoneData.length; index++) {
@@ -365,16 +379,28 @@ function showCategorieMap(categorie) {
             x = 0;
         }
     }
+    
+    // set scale
+    ctx.scale(scale, scale)
+
+    // show map
+    divMap.style.visibility = "visible"
 }
 
-function showYearCategorieMap(annee, categorie) {
+function showYearCategorieMap(annee, categorie, scale) {
     const db = require('electron-db')
     const path = require('path')
     const location = path.join(__dirname, '/')
-    const canvas = document.querySelector('#carroyage');
-    const width = canvas.width = (4218);
-    const height = canvas.height = (5318);
-    let x = y = 0;
+    const canvas = document.querySelector('#carroyage')
+    const divMap = document.getElementById('map')
+    canvas.width = (4218)
+    canvas.height = (5318)
+
+    // load map
+    const image = new Image()
+    image.src = './assets/img/plan-v2_2019.jpg'
+
+    let x = y = 0
 
     const year = parseInt(document.getElementById(annee).value)
     const mapData = require('./carroyage.json')
@@ -416,72 +442,80 @@ function showYearCategorieMap(annee, categorie) {
         })
     }
 
-    const ctx = canvas.getContext('2d');
-
-    ctx.scale(0.25, 0.25);
-
-    // load map
-    const image = new Image();
-    image.src = './assets/img/plan-v2_2019.jpg';
+    const ctx = canvas.getContext('2d')
 
     // display map with carroyage
     image.onload = function() {
-        ctx.drawImage(image, 0, 0);
-        //ctx.fillRect(121, 96, 106, 106);
+        ctx.drawImage(image, 0, 0)
+        
         // legende des couleurs
-        ctx.fillStyle = 'rgba(254, 254, 177, 0.80)';
-        ctx.fillRect(15 + (20*106), -10 + (3*106), 106, 106);
-        ctx.fillStyle = 'black';
-        ctx.font = '36px arial';
-        ctx.fillText("de 1 à 5", 15 + (21*106) + 15, -10 + (3*106) + 65);
-        ctx.fillStyle = 'rgba(253, 175, 79, 0.80)';
-        ctx.fillRect(15 + (20*106), -10 + (4*106), 106, 106);
-        ctx.fillStyle = 'black';
-        ctx.font = '36px arial';
-        ctx.fillText("de 6 à 10", 15 + (21*106) + 15, -10 + (4*106) + 65);
-        ctx.fillStyle = 'rgba(237, 80, 40, 0.80)';
-        ctx.fillRect(15 + (20*106), -10 + (5*106), 106, 106);
-        ctx.fillStyle = 'black';
-        ctx.font = '36px arial';
-        ctx.fillText("de 11 à 15", 15 + (21*106) + 15, -10 + (5*106) + 65);
-        ctx.fillStyle = 'rgba(100, 23, 14, 0.80)';
-        ctx.fillRect(15 + (20*106), -10 + (6*106), 106, 106);
-        ctx.fillStyle = 'black';
-        ctx.font = '36px arial';
-        ctx.fillText("supérieur à 16", 15 + (21*106) + 15, -10 + (6*106) + 65);
+        ctx.fillStyle = 'rgba(254, 254, 177, 0.80)'
+        ctx.fillRect(15 + (20*106), -10 + (3*106), 106, 106)
+        ctx.fillStyle = 'black'
+        ctx.font = '36px arial'
+        ctx.fillText("de 1 à 5", 15 + (21*106) + 15, -10 + (3*106) + 65)
+        ctx.fillStyle = 'rgba(253, 175, 79, 0.80)'
+        ctx.fillRect(15 + (20*106), -10 + (4*106), 106, 106)
+        ctx.fillStyle = 'black'
+        ctx.font = '36px arial'
+        ctx.fillText("de 6 à 10", 15 + (21*106) + 15, -10 + (4*106) + 65)
+        ctx.fillStyle = 'rgba(237, 80, 40, 0.80)'
+        ctx.fillRect(15 + (20*106), -10 + (5*106), 106, 106)
+        ctx.fillStyle = 'black'
+        ctx.font = '36px arial'
+        ctx.fillText("de 11 à 15", 15 + (21*106) + 15, -10 + (5*106) + 65)
+        ctx.fillStyle = 'rgba(100, 23, 14, 0.80)'
+        ctx.fillRect(15 + (20*106), -10 + (6*106), 106, 106)
+        ctx.fillStyle = 'black'
+        ctx.font = '36px arial'
+        ctx.fillText("supérieur à 16", 15 + (21*106) + 15, -10 + (6*106) + 65)
 
-        for (let posY = -10; posY < height; posY += 106) {
-            for (let posX = 15; posX < width; posX += 106) {
-                ctx.strokeStyle = 'rgb(0, 0, 0)';
-                //ctx.lineWidth = 3;
-                ctx.strokeRect(posX, posY, 106, 106);
-                ctx.fillStyle = 'black';
-                ctx.font = '36px arial';
-                //ctx.fillText(y+";"+x, posX+10, posY+60);
+        // draw grid
+        for (let posY = -10; posY < image.height; posY += 106) {
+            for (let posX = 15; posX < image.width; posX += 106) {
+                ctx.strokeStyle = 'rgb(0, 0, 0)'
+                ctx.strokeRect(posX, posY, 106, 106)
+                ctx.fillStyle = 'black'
+                ctx.font = '36px arial'
+                
+                // display data on map
                 if (mapData.carroyage[y][x] != ".") {
                     ctx.fillText(mapData.carroyage[y][x], posX+30, posY+65);
                     for (let index = 0; index < zoneData.length; index++) {
                         if (zoneData[index].zone == mapData.carroyage[y][x]) {
                             if (zoneData[index].quantite == 0){
-                                ctx.fillStyle = 'rgba(0,255,0, 0.50)';
+                                ctx.fillStyle = 'rgba(0,255,0, 0.50)'
                             } else if (zoneData[index].quantite < 6) {
-                                ctx.fillStyle = 'rgba(254, 254, 177, 0.80)';                                        
+                                ctx.fillStyle = 'rgba(254, 254, 177, 0.80)'
                             } else if (zoneData[index].quantite >= 6 && zoneData[index].quantite < 11) {
-                                ctx.fillStyle = 'rgba(253, 175, 79, 0.80)';                        
+                                ctx.fillStyle = 'rgba(253, 175, 79, 0.80)'                        
                             } else if (zoneData[index].quantite >= 11 && zoneData[index].quantite < 16) {
-                                ctx.fillStyle = 'rgba(237, 80, 40, 0.80)';
+                                ctx.fillStyle = 'rgba(237, 80, 40, 0.80)'
                             } else  if (zoneData[index].quantite >= 16) {
-                                ctx.fillStyle = 'rgba(100, 23, 14, 0.80)';
+                                ctx.fillStyle = 'rgba(100, 23, 14, 0.80)'
                             }
-                            ctx.fillRect(posX, posY, 106, 106);
+                            ctx.fillRect(posX, posY, 106, 106)
                         }                                    
                     }
                 }
-                x++;
+                x++
             }
-            y++;
-            x = 0;
+            y++
+            x = 0
         }
     }
+
+    // set scale
+    ctx.scale(scale, scale)
+
+    // show map
+    divMap.style.visibility = "visible"
 }
 
+function downloadCanvas() {
+    const download = document.getElementById('download')
+    const canvas = document.getElementById('carroyage')
+
+    const img = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")
+    download.setAttribute("href", img)
+}
