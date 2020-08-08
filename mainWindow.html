@@ -27,9 +27,55 @@
                 </div>
             </div>
         </header>
-        <!-- <input type="button" onclick="loadDB('./base_de_donnees_compileeb3.xlsx')" value="Chargement">
-        <input type="button" onclick="init()" value="init"> -->
         <p>Le menu ci-dessous permet de sélectionner la catégorie ou l'année de fouille à projeter sur le fond de carte du chantier de l'abbaye de Morimond.</p>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="row">
+                    <div>
+                        <label>Année</label>
+                        <br>
+                        <select class="form-control" name="annee" id="annee"></select>
+                        <br>
+                        <label class="form-check-label">Sélectionner</label>
+                        <input class="form-check-input" type="checkbox" id="yearSelected" name="yearSelected">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div>
+                        <label>Catégogie</label>
+                        <br>
+                        <select class="form-control" name="categorie" id="categorie"></select>
+                        <br>
+                        <label class="form-check-label">Sélectionner</label>
+                        <input class="form-check-input" type="checkbox" id="categorieSelected" name="categorieSelected">
+                        <br>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div>
+                        <label>Unité Stratigraphique</label>
+                        <br>
+                        <select class="form-control" name="uniteStrat" id="uniteStrat"></select>
+                        <br>
+                        <label class="form-check-label">Sélectionner</label>
+                        <input class="form-check-input" type="checkbox" id="uniteStratSelected" name="uniteStratSelected">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="row">
+                <div>
+                    <input type="button" class="btn btn-primary" value="Visualiser" onclick="showMap(0.25)">
+                    <input type="button"class="btn btn-primary" value="Agrandir" onclick="showYearCategorieMap('annee2', 'categorie2', 1.0)">
+                </div>
+            </div>
+        </div>
+    <!--    
         <div class="row">
             <div class="col-sm-6">
                 <h2>Choix de la catégorie <span class="glyphicon glyphicon-list-alt"></span></h2>
@@ -59,7 +105,8 @@
             </div>
         </div>
         <hr/>
-        <div class="row">
+    -->
+        <div class="row" hidden>
             <div class="col-sm-12">
                 <h2>Choix de l'année et de la catégorie <span class="glyphicon glyphicon-calendar"></span> <span class="glyphicon glyphicon-list-alt"></span></h2>
                 <div class="row">
@@ -76,11 +123,11 @@
                 </div>
             </div>
         </div>
-        <hr/>
     </div>
+    <hr>
     <div id="map">
         <a id="download" download="Carroyage.png" href="#">
-            <button type="button" onclick="downloadCanvas()">Télécharger</button>
+            <button type="button" class="btn btn-primary" onclick="downloadCanvas()">Télécharger</button>
         </a>
         <canvas id="carroyage">
             <p>Carroyage du site de l'abbaye de Morimond</p>

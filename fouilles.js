@@ -3,12 +3,14 @@ function initApp() {
     const path = require('path')
     const location = path.join(__dirname, './')
     const selectAnnee = document.getElementById('annee')
-    const selectAnnee2 = document.getElementById('annee2')
     const selectCategorie = document.getElementById('categorie')
+    const selectUnitesStrat = document.getElementById('uniteStrat')
+    const selectAnnee2 = document.getElementById('annee2')
     const selectCategorie2 = document.getElementById('categorie2')
     const divMap = document.getElementById('map')
     let years = []
     let categories = []
+    let unitesStrat = []
 
     if(db.valid('fouilles', location)) {         
         db.getAll('fouilles', location, (succ, data) => {
@@ -16,6 +18,9 @@ function initApp() {
                 data.forEach(element => {
                     let yearExists = false
                     let categorieExists = false
+                    let uniteStratExists = false
+
+                    // get every existing years
                     if(element.date !== null) {
                         for (let i = 0; i < years.length; i++) {
                             if (element.date === years[i]) {
@@ -30,6 +35,8 @@ function initApp() {
                     years.sort()
                     //reverse years order
                     years.reverse()
+
+                    // get every existing categories
                     if(element.categorie !== 'Categorie') {
                         for (let i = 0; i < categories.length; i++) {
                             if (element.categorie.toLowerCase() === categories[i]) {
@@ -40,7 +47,20 @@ function initApp() {
                             categories.push(element.categorie.toLowerCase())
                         }
                     }
-                    categories.sort()              
+                    categories.sort()
+
+                    // get every existing stratigraphic units
+                    if(element.us !== null) {
+                        for (let i = 0; i < unitesStrat.length; i++) {
+                            if (element.us.toString().toLowerCase() === unitesStrat[i]) {
+                                uniteStratExists = true
+                            }
+                        }
+                        if (uniteStratExists === false) {
+                            unitesStrat.push(element.us.toString().toLowerCase())
+                        }
+                    }
+                    unitesStrat.sort()
                 })
                     
                 years.forEach(year => {
@@ -64,6 +84,12 @@ function initApp() {
                     opt.value = opt.text = categorie
                     selectCategorie2.appendChild(opt)
                 })
+
+                unitesStrat.forEach(uniteStrat => {
+                    const opt = document.createElement('option')
+                    opt.value = opt.text = uniteStrat
+                    selectUnitesStrat.appendChild(opt)
+                })
             } else {
                 console.log('An error has occured.')
                 console.log(`Message: ${data}`)
@@ -73,6 +99,7 @@ function initApp() {
     divMap.style.visibility = "hidden"
 }
 
+/*
 function getAll() {
     const db = require('electron-db')
     const path = require('path')
@@ -88,6 +115,7 @@ function getAll() {
         })
     }
 }
+*/
 
 function getItems(year) {
     const db = require('electron-db')
@@ -153,6 +181,47 @@ function ExcelDateToJSDate(serial) {
  
     return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds)
  }
+
+function showMap(scale) {
+    const db = require('electron-db')
+    const path = require('path')
+    const location = path.join(__dirname, '/')
+    const canvas = document.querySelector('#carroyage')
+    const divMap = document.getElementById('map')
+    const width = canvas.width = (4218)
+    const height = canvas.height = (5318)
+
+    // load map background
+    const image = new Image()
+    image.src = './assets/img/plan-v2_2019.jpg'
+
+    let x = y = 0;
+
+    const mapData = require('./carroyage.json')
+    const yearSelected = document.getElementById('yearSelected').checked
+    const categorieSelected = document.getElementById('categorieSelected').checked
+    const uniteStratSelected = document.getElementById('uniteStratSelected').checked
+    let year = null
+    let categorie = null
+    let stratUnit = null
+    
+    // get data
+    let zones = []
+    let zoneData = []
+
+    if (yearSelected) {
+        year = parseInt(document.getElementById('annee').value)        
+    }
+    if (categorieSelected) {
+        categorie = document.getElementById('categorie').value      
+    }
+    if (uniteStratSelected) {
+        stratUnit = document.getElementById('uniteStrat').value.toString()      
+    }
+    console.log(year)
+    console.log(categorie)
+    console.log(stratUnit)
+}
 
 function showYearMap(annee, scale) {
     const db = require('electron-db')
