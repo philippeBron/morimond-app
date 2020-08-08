@@ -150,18 +150,23 @@ function dataLoab(file) {
             obj.sousCategorie = element[2]
             obj.quantite = element[3]
             obj.complement = element[4]
-            obj.us = element[5]
+            if ( element[5] !== null) {
+                obj.us = element[5].toString()                
+            } else {
+                obj.us = element[5]
+            }
             obj.date = ExcelDateToJSDate(element[6]).getFullYear()
 
-            console.log(obj)
+            // console.log(obj)
             
             if(db.valid('fouilles', location)) {
                 db.insertTableContent('fouilles', location, obj, (succ, msg) => {
-                    console.log(`Success: ${succ}`)
-                    console.log(`Message: ${msg}`)
+                    // console.log(`Success: ${succ}`)
+                    // console.log(`Message: ${msg}`)
                 })
             }
         })
+        console.log(`Données chargées.`)
     })
 }
 

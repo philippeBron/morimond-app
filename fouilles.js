@@ -5,8 +5,6 @@ function initApp() {
     const selectAnnee = document.getElementById('annee')
     const selectCategorie = document.getElementById('categorie')
     const selectUnitesStrat = document.getElementById('uniteStrat')
-    const selectAnnee2 = document.getElementById('annee2')
-    const selectCategorie2 = document.getElementById('categorie2')
     const divMap = document.getElementById('map')
     let years = []
     let categories = []
@@ -67,22 +65,12 @@ function initApp() {
                     const opt = document.createElement('option')
                     opt.value = opt.text = year
                     selectAnnee.appendChild(opt)
-                })                
-                years.forEach(year => {
-                    const opt = document.createElement('option')
-                    opt.value = opt.text = year
-                    selectAnnee2.appendChild(opt)
                 })
                     
                 categories.forEach(categorie => {
                     const opt = document.createElement('option')
                     opt.value = opt.text = categorie
                     selectCategorie.appendChild(opt)
-                })                
-                categories.forEach(categorie => {
-                    const opt = document.createElement('option')
-                    opt.value = opt.text = categorie
-                    selectCategorie2.appendChild(opt)
                 })
 
                 unitesStrat.forEach(uniteStrat => {
@@ -98,24 +86,6 @@ function initApp() {
     }
     divMap.style.visibility = "hidden"
 }
-
-/*
-function getAll() {
-    const db = require('electron-db')
-    const path = require('path')
-    const location = path.join(__dirname, '/')
-    if(db.valid('fouilles', location)) {
-        db.getAll('fouilles', location, (succ, data) => {
-            if(succ) {
-                console.log(`Message: ${data}`)
-            } else {
-                console.log('An error has occured.')
-                console.log(`Message: ${data}`)
-            }
-        })
-    }
-}
-*/
 
 function getItems(year) {
     const db = require('electron-db')
@@ -186,29 +156,16 @@ function showMap(scale) {
     const db = require('electron-db')
     const path = require('path')
     const location = path.join(__dirname, '/')
-    const canvas = document.querySelector('#carroyage')
-    const divMap = document.getElementById('map')
-    const width = canvas.width = (4218)
-    const height = canvas.height = (5318)
-
-    // load map background
-    const image = new Image()
-    image.src = './assets/img/plan-v2_2019.jpg'
-
-    let x = y = 0;
-
-    const mapData = require('./carroyage.json')
+    
     const yearSelected = document.getElementById('yearSelected').checked
     const categorieSelected = document.getElementById('categorieSelected').checked
     const uniteStratSelected = document.getElementById('uniteStratSelected').checked
+
     let year = null
     let categorie = null
     let stratUnit = null
-    
-    // get data
-    let zones = []
-    let zoneData = []
 
+    // check selected fields
     if (yearSelected) {
         year = parseInt(document.getElementById('annee').value)        
     }
@@ -216,11 +173,238 @@ function showMap(scale) {
         categorie = document.getElementById('categorie').value      
     }
     if (uniteStratSelected) {
-        stratUnit = document.getElementById('uniteStrat').value.toString()      
+        stratUnit = document.getElementById('uniteStrat').value.toString()     
     }
-    console.log(year)
-    console.log(categorie)
-    console.log(stratUnit)
+    
+    if(db.valid('fouilles', location)) {
+        if (yearSelected && categorieSelected && uniteStratSelected) {
+            console.log(year)
+            console.log(categorie)
+            console.log(stratUnit)
+            db.getRows('fouilles', location, {
+                date: year,
+                categorie: categorie,
+                us: stratUnit
+            }, (succ, data) => {
+                if(succ) {
+                    displayMap(data, 'multi', scale)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (yearSelected && categorieSelected) {
+            console.log(year)
+            console.log(categorie)
+            db.getRows('fouilles', location, {
+                date: year,
+                categorie: categorie
+            }, (succ, data) => {
+                if(succ) {
+                    displayMap(data, 'multi', scale)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (categorieSelected && uniteStratSelected) {
+            console.log(categorie)
+            console.log(stratUnit)
+            db.getRows('fouilles', location, {
+                categorie: categorie,
+                us: stratUnit
+            }, (succ, data) => {
+                if(succ) {
+                    displayMap(data, 'multi', scale)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (yearSelected && uniteStratSelected) {
+            console.log(year)
+            console.log(stratUnit)
+            db.getRows('fouilles', location, {
+                date: year,
+                us: stratUnit
+            }, (succ, data) => {
+                if(succ) {
+                    displayMap(data, 'multi', scale)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (yearSelected) {
+            console.log(year)
+            db.getRows('fouilles', location, {
+                date: year
+            }, (succ, data) => {
+                if(succ) {
+                    displayMap(data, 'mono', scale)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (categorieSelected) {
+            console.log(categorie)
+            db.getRows('fouilles', location, {
+                categorie: categorie
+            }, (succ, data) => {
+                if(succ) {
+                    displayMap(data, 'multi', scale)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (uniteStratSelected) {
+            console.log(stratUnit)
+            db.getRows('fouilles', location, {
+                us: stratUnit
+            }, (succ, data) => {
+                if(succ) {
+                    displayMap(data, 'mono', scale)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        }
+    }
+}
+
+function displayMap(data, type, scale){
+    const canvas = document.querySelector('#carroyage')
+    const divMap = document.getElementById('map')
+    const width = canvas.width = (4218)
+    const height = canvas.height = (5318)
+
+    const mapData = require('./carroyage.json')
+
+    // load map background
+    const image = new Image()
+    image.src = './assets/img/plan-v2_2019.jpg'
+
+    let x = y = 0
+    let zones = []
+    let zoneData = []
+
+    console.log(data)
+
+    data.forEach(element => {
+
+        let exists = false
+        let obj = new Object()
+
+        if (element.zone !== 'Zone') {
+            for (let i = 0; i < zoneData.length; i++) {
+                if (element.zone === zoneData[i].zone) {
+                    exists = true
+                    zoneData[i].quantite += element.quantite
+                }
+            }
+            if (exists === false) {
+                obj.zone = element.zone
+                obj.quantite = element.quantite
+                zoneData.push(obj)
+            }   
+        }
+    });
+    zoneData.sort()
+    
+    if (type === 'mono') {
+        zones = zoneData
+        zoneData = []
+        for (let index = 0; index < zones.length; index++) {
+            let obj = new Object()
+
+            obj.zone = zones[index].zone
+            obj.quantite = 0
+
+            zoneData.push(obj)                    
+        }            
+    }
+    console.log(zoneData)
+
+    const ctx = canvas.getContext('2d')
+
+    // display map with carroyage
+    image.onload = function() {
+        ctx.drawImage(image, 0, 0)
+        
+        if (type === 'multi') {
+            // legende des couleurs
+            ctx.fillStyle = 'rgba(254, 254, 177, 0.80)'
+            ctx.fillRect(15 + (20*106), -10 + (3*106), 106, 106)
+            ctx.fillStyle = 'black'
+            ctx.font = '36px arial'
+            ctx.fillText("de 1 à 5", 15 + (21*106) + 15, -10 + (3*106) + 65)
+            ctx.fillStyle = 'rgba(253, 175, 79, 0.80)'
+            ctx.fillRect(15 + (20*106), -10 + (4*106), 106, 106)
+            ctx.fillStyle = 'black'
+            ctx.font = '36px arial'
+            ctx.fillText("de 6 à 10", 15 + (21*106) + 15, -10 + (4*106) + 65)
+            ctx.fillStyle = 'rgba(237, 80, 40, 0.80)'
+            ctx.fillRect(15 + (20*106), -10 + (5*106), 106, 106)
+            ctx.fillStyle = 'black'
+            ctx.font = '36px arial'
+            ctx.fillText("de 11 à 15", 15 + (21*106) + 15, -10 + (5*106) + 65)
+            ctx.fillStyle = 'rgba(100, 23, 14, 0.80)'
+            ctx.fillRect(15 + (20*106), -10 + (6*106), 106, 106)
+            ctx.fillStyle = 'black'
+            ctx.font = '36px arial'
+            ctx.fillText("supérieur à 16", 15 + (21*106) + 15, -10 + (6*106) + 65)
+        }
+
+        // draw grid
+        for (let posY = -10; posY < image.height; posY += 106) {
+            for (let posX = 15; posX < image.width; posX += 106) {
+                ctx.strokeStyle = 'rgb(0, 0, 0)'
+                ctx.strokeRect(posX, posY, 106, 106)
+                ctx.fillStyle = 'black'
+                ctx.font = '36px arial'
+                
+                // display data on map
+                if (mapData.carroyage[y][x] != ".") {
+                    ctx.fillText(mapData.carroyage[y][x], posX+30, posY+65);
+                    for (let index = 0; index < zoneData.length; index++) {
+                        if (zoneData[index].zone == mapData.carroyage[y][x]) {
+                            if (zoneData[index].quantite == 0){
+                                ctx.fillStyle = 'rgba(0,255,0, 0.50)'
+                            } else if (zoneData[index].quantite < 6) {
+                                ctx.fillStyle = 'rgba(254, 254, 177, 0.80)'
+                            } else if (zoneData[index].quantite >= 6 && zoneData[index].quantite < 11) {
+                                ctx.fillStyle = 'rgba(253, 175, 79, 0.80)'                        
+                            } else if (zoneData[index].quantite >= 11 && zoneData[index].quantite < 16) {
+                                ctx.fillStyle = 'rgba(237, 80, 40, 0.80)'
+                            } else  if (zoneData[index].quantite >= 16) {
+                                ctx.fillStyle = 'rgba(100, 23, 14, 0.80)'
+                            }
+                            ctx.fillRect(posX, posY, 106, 106)
+                        }                                    
+                    }
+                }
+                x++
+            }
+            y++
+            x = 0
+        }
+    }
+
+    // set scale
+    ctx.scale(scale, scale)
+
+    // show map
+    divMap.style.visibility = "visible"
 }
 
 function showYearMap(annee, scale) {
@@ -481,8 +665,7 @@ function showYearCategorieMap(annee, categorie, scale) {
             date: year,
             categorie: document.getElementById(categorie).value
         }, (succ, data) => {
-            if(succ) {
-                
+            if(succ) {                
                 data.forEach(element => {
                     let exists = false
                     let obj = new Object()
