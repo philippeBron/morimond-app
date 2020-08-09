@@ -152,6 +152,217 @@ function ExcelDateToJSDate(serial) {
     return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds)
  }
 
+ function selectorCheck(){
+    const db = require('electron-db')
+    const path = require('path')
+    const location = path.join(__dirname, '/')
+    
+    const yearSelected = document.getElementById('yearSelected').checked
+    const categorieSelected = document.getElementById('categorieSelected').checked
+    const uniteStratSelected = document.getElementById('uniteStratSelected').checked
+
+    let year = null
+    let categorie = null
+    let stratUnit = null
+
+    // check selected fields
+    if (yearSelected) {
+        year = parseInt(document.getElementById('annee').value)        
+    }
+    if (categorieSelected) {
+        categorie = document.getElementById('categorie').value      
+    }
+    if (uniteStratSelected) {
+        stratUnit = document.getElementById('uniteStrat').value.toString()     
+    }
+    
+    if(db.valid('fouilles', location)) {
+        if (yearSelected && categorieSelected && uniteStratSelected) {
+            console.log(year)
+            console.log(categorie)
+            console.log(stratUnit)
+            db.getRows('fouilles', location, {
+                date: year,
+                categorie: categorie,
+                us: stratUnit
+            }, (succ, data) => {
+                if(succ) {
+                    selectorUpdate(data)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (yearSelected && categorieSelected) {
+            console.log(year)
+            console.log(categorie)
+            db.getRows('fouilles', location, {
+                date: year,
+                categorie: categorie
+            }, (succ, data) => {
+                if(succ) {
+                    selectorUpdate(data)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (categorieSelected && uniteStratSelected) {
+            console.log(categorie)
+            console.log(stratUnit)
+            db.getRows('fouilles', location, {
+                categorie: categorie,
+                us: stratUnit
+            }, (succ, data) => {
+                if(succ) {
+                    selectorUpdate(data)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (yearSelected && uniteStratSelected) {
+            console.log(year)
+            console.log(stratUnit)
+            db.getRows('fouilles', location, {
+                date: year,
+                us: stratUnit
+            }, (succ, data) => {
+                if(succ) {
+                    selectorUpdate(data)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (yearSelected) {
+            console.log(year)
+            db.getRows('fouilles', location, {
+                date: year
+            }, (succ, data) => {
+                if(succ) {
+                    selectorUpdate(data)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (categorieSelected) {
+            console.log(categorie)
+            db.getRows('fouilles', location, {
+                categorie: categorie
+            }, (succ, data) => {
+                if(succ) {
+                    selectorUpdate(data)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        } else if (uniteStratSelected) {
+            console.log(stratUnit)
+            db.getRows('fouilles', location, {
+                us: stratUnit
+            }, (succ, data) => {
+                if(succ) {
+                    selectorUpdate(data)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
+        }
+    }
+}
+
+function selectorUpdate(data){
+    const selectAnnee = document.getElementById('annee')
+    const selectCategorie = document.getElementById('categorie')
+    const selectUnitesStrat = document.getElementById('uniteStrat')
+    
+    let years = []
+    let categories = []
+    let unitesStrat = []
+    
+    data.forEach(element => {
+        let yearExists = false
+        let categorieExists = false
+        let uniteStratExists = false
+
+        // get every existing years
+        if(element.date !== null) {
+            for (let i = 0; i < years.length; i++) {
+                if (element.date === years[i]) {
+                    yearExists = true
+                }
+            }
+            if (yearExists === false) {
+                years.push(element.date)
+            }
+        }
+        // sort years
+        years.sort()
+        //reverse years order
+        years.reverse()
+
+        // get every existing categories
+        if(element.categorie !== 'Categorie') {
+            for (let i = 0; i < categories.length; i++) {
+                if (element.categorie.toLowerCase() === categories[i]) {
+                    categorieExists = true
+                }
+            }
+            if (categorieExists === false) {
+                categories.push(element.categorie.toLowerCase())
+            }
+        }
+        categories.sort()
+
+        // get every existing stratigraphic units
+        if(element.us !== null) {
+            for (let i = 0; i < unitesStrat.length; i++) {
+                if (element.us.toString().toLowerCase() === unitesStrat[i]) {
+                    uniteStratExists = true
+                }
+            }
+            if (uniteStratExists === false) {
+                unitesStrat.push(element.us.toString().toLowerCase())
+            }
+        }
+        unitesStrat.sort()
+    })
+
+    // init select fields
+    selectAnnee.innerHTML = ""
+    selectCategorie.innerHTML = ""
+    selectUnitesStrat.innerHTML = ""
+        
+    years.forEach(year => {
+        const opt = document.createElement('option')
+        opt.value = opt.text = year
+        selectAnnee.appendChild(opt)
+    })
+        
+    categories.forEach(categorie => {
+        const opt = document.createElement('option')
+        opt.value = opt.text = categorie
+        selectCategorie.appendChild(opt)
+    })
+
+    unitesStrat.forEach(uniteStrat => {
+        const opt = document.createElement('option')
+        opt.value = opt.text = uniteStrat
+        selectUnitesStrat.appendChild(opt)
+    })
+}
+
 function showMap(scale) {
     const db = require('electron-db')
     const path = require('path')
