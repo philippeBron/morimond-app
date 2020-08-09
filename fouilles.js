@@ -12,7 +12,7 @@ function initApp() {
 
     if(db.valid('fouilles', location)) {         
         db.getAll('fouilles', location, (succ, data) => {
-            if(succ) {        
+            if(succ) {
                 data.forEach(element => {
                     let yearExists = false
                     let categorieExists = false
@@ -87,6 +87,7 @@ function initApp() {
     divMap.style.visibility = "hidden"
 }
 
+/*
 function getItems(year) {
     const db = require('electron-db')
     const path = require('path')
@@ -132,6 +133,7 @@ function getItems(year) {
         })
     }
 }
+*/
 
 function ExcelDateToJSDate(serial) {
     var utc_days  = Math.floor(serial - 25569)
@@ -156,14 +158,19 @@ function ExcelDateToJSDate(serial) {
     const db = require('electron-db')
     const path = require('path')
     const location = path.join(__dirname, '/')
-    
+     
+    const divMap = document.getElementById('map')
     const yearSelected = document.getElementById('yearSelected').checked
     const categorieSelected = document.getElementById('categorieSelected').checked
     const uniteStratSelected = document.getElementById('uniteStratSelected').checked
-
+     
     let year = null
     let categorie = null
     let stratUnit = null
+
+    // hide map
+    divMap.style.visibility = "hidden"
+
 
     // check selected fields
     if (yearSelected) {
@@ -278,6 +285,17 @@ function ExcelDateToJSDate(serial) {
                     return null
                 }
             })
+        } else {
+            console.log('vide')      
+            db.getAll('fouilles', location, (succ, data) => {
+                if(succ) {
+                    selectorUpdate(data)
+                } else {
+                    console.log('An error has occured.')
+                    console.log(`Message: ${data}`)
+                    return null
+                }
+            })
         }
     }
 }
@@ -371,6 +389,10 @@ function showMap(scale) {
     const yearSelected = document.getElementById('yearSelected').checked
     const categorieSelected = document.getElementById('categorieSelected').checked
     const uniteStratSelected = document.getElementById('uniteStratSelected').checked
+
+    if (!yearSelected && !categorieSelected && !uniteStratSelected) {
+        alert(`Veuillez sélectionner au moins un critère.`)
+    }
 
     let year = null
     let categorie = null
@@ -496,6 +518,7 @@ function showMap(scale) {
 function displayMap(data, type, scale){
     const canvas = document.querySelector('#carroyage')
     const divMap = document.getElementById('map')
+    const dlButton = document.getElementById('download')
     const width = canvas.width = (4218)
     const height = canvas.height = (5318)
 
@@ -616,6 +639,13 @@ function displayMap(data, type, scale){
 
     // show map
     divMap.style.visibility = "visible"
+    
+    // hide or show download button
+    if (scale === 1.0) {
+        dlButton.style.visibility = "visible"
+    } else {
+        dlButton.style.visibility = "hidden"
+    }
 }
 
 function showYearMap(annee, scale) {

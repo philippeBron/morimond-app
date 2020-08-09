@@ -20,7 +20,7 @@
         <header class="page-header">
             <div class="row">
                 <div class="col-sm-2">
-                    <img src="./assets/img/arton218-21877.png" alt="Morimond" width=100%/>
+                    <img src="./assets/img/arton218-21877.png" alt="Morimond" height=100%/>
                 </div>
                 <div class="col-sm-10 text-center">
                     <h1>Carroyage du site archéologique <br> de l'abbaye de Morimond</h1>
@@ -32,11 +32,11 @@
             <div class="col-sm-4">
                 <div class="row">
                     <div>
-                        <label>Année</label>
+                        <label for="annee">Année</label>
                         <br>
                         <select class="form-control" name="annee" id="annee"></select>
                         <br>
-                        <label class="form-check-label">Sélectionner</label>
+                        <label class="form-check-label" for="yearSelected">Sélectionner</label>
                         <input class="form-check-input" type="checkbox" id="yearSelected" name="yearSelected" onclick="selectorCheck()">
                     </div>
                 </div>
@@ -44,11 +44,11 @@
             <div class="col-sm-4">
                 <div class="row">
                     <div>
-                        <label>Catégogie</label>
+                        <label for="categorie">Catégogie</label>
                         <br>
                         <select class="form-control" name="categorie" id="categorie"></select>
                         <br>
-                        <label class="form-check-label">Sélectionner</label>
+                        <label class="form-check-label" for="categorieSelected">Sélectionner</label>
                         <input class="form-check-input" type="checkbox" id="categorieSelected" name="categorieSelected" onclick="selectorCheck()">
                         <br>
                     </div>
@@ -57,11 +57,11 @@
             <div class="col-sm-4">
                 <div class="row">
                     <div>
-                        <label>Unité Stratigraphique</label>
+                        <label for="uniteStrat">Unité Stratigraphique</label>
                         <br>
                         <select class="form-control" name="uniteStrat" id="uniteStrat"></select>
                         <br>
-                        <label class="form-check-label">Sélectionner</label>
+                        <label class="form-check-label" for="uniteStratSelected">Sélectionner</label>
                         <input class="form-check-input" type="checkbox" id="uniteStratSelected" name="uniteStratSelected" onclick="selectorCheck()">
                     </div>
                 </div>
@@ -75,28 +75,11 @@
                 </div>
             </div>
         </div>
-        <div class="row" hidden>
-            <div class="col-sm-12">
-                <h2>Choix de l'année et de la catégorie <span class="glyphicon glyphicon-calendar"></span> <span class="glyphicon glyphicon-list-alt"></span></h2>
-                <div class="row">
-                    <div>
-                        <label>Année</label>
-                        <select name="annee2" id="annee2"></select>
-                        <label>Catégogie</label>
-                        <select name="categorie2" id="categorie2"></select>
-                    </div>
-                    <div>
-                        <input type="button" value="Visualiser" onclick="showYearCategorieMap('annee2', 'categorie2', 0.25)">
-                        <input type="button" value="Agrandir" onclick="showYearCategorieMap('annee2', 'categorie2', 1.0)">
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
     <hr>
     <div id="map">
         <a id="download" download="Carroyage.png" href="#">
-            <button type="button" class="btn btn-primary" onclick="downloadCanvas()">Télécharger</button>
+            <button type="button" class="btn btn-primary" id="download" name="downmoad" onclick="downloadCanvas()">Télécharger</button>
         </a>
         <canvas id="carroyage">
             <p>Carroyage du site de l'abbaye de Morimond</p>
