@@ -87,54 +87,6 @@ function initApp() {
     divMap.style.visibility = "hidden"
 }
 
-/*
-function getItems(year) {
-    const db = require('electron-db')
-    const path = require('path')
-    const location = path.join(__dirname, '/')
-    let zones = []
-    let zonesList = []
-            
-    if(db.valid('fouilles', location)) {
-        db.getRows('fouilles', location, {
-            date: year
-        }, (succ, data) => {
-            if(succ) {                
-                data.forEach(element => {
-                    let exists = false
-
-                    if (element.zone !== 'Zone') {
-                        for (let i = 0; i < zones.length; i++) {
-                            if (element.zone === zones[i]) {
-                                exists = true
-                            }
-                        }
-                        if (exists === false) {
-                            zones.push(element.zone)
-                        }
-                    }
-                });
-                zones.sort()
-                for (let index = 0; index < zones.length; index++) {
-                    let obj = new Object()
-
-                    obj.zone = zones[index]
-                    obj.quantite = 0
-
-                    zonesList.push(obj)
-                    
-                }
-                return zonesList
-            } else {
-                console.log('An error has occured.')
-                console.log(`Message: ${data}`)
-                return null
-            }
-        })
-    }
-}
-*/
-
 function ExcelDateToJSDate(serial) {
     var utc_days  = Math.floor(serial - 25569)
     var utc_value = utc_days * 86400;                                        
@@ -168,7 +120,7 @@ function ExcelDateToJSDate(serial) {
     let categorie = null
     let stratUnit = null
 
-    // hide map
+    // hide map because selection changed
     divMap.style.visibility = "hidden"
 
 

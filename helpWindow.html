@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="utf-8" />
+    <link rel="stylesheet" href="./assets/css/bootstrap.css">
+    <link rel="stylesheet" href="./assets/css/bootstrap-theme.css">
+    <script src="./assets/js/bootstrap.js"></script>
+    
+    <title>Aide</title>
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <div class="row">
+                <div class="col-sm-2">
+                    <img src="./assets/img/arton218-21877.png" alt="Morimond" height=100%/>
+                </div>
+                <div class="col-sm-10 text-center">
+                    <h1>Documentation</h1>
+                </div>
+            </div>
+        </header>
+        <div class="row">
+            L'application se lance en utilisant le fichier `.exe` se trouvant à la racine du répertoire de l'application.
+            <h2>Chargement des données</h2>
+            </p>Le chargement des données de fouille et du carroyage se font au travers du menu FIchier de l'application. Le menu <em>Chargement des données</em> utilise le fichier <strong>base_de_donnees_consolidee.xlsx</strong> qui doit être positionné dans le répertoire racine de l'application. Le menu <em>Chargement du carroyage</em> fait appel au fihier <strong>carroyage.xlsx</strong> qui doit être également enregistré dans le répertoire racine de l'application.</p>
+
+            <p>Le chargement de ces deux fichiers crées les fichiers <strong>.json</strong> qui serviront de base de données locale à l'application. Une fois utilisés, les fichiers <strong>.xlsx</strong> ne sont plus nécessaire au fonctionnement de l'application. Les fichiers générés sont <strong>fouilles.json</strong> pour les données de fouilles et <strong>carroyage.json</strong> pour les données du carroyage à utiliser.<p>
+                    
+            <h2>Visualisation</h2>
+            <p>Le bouton <em>Visualiser</em> permet de générer une carte donnant une vue d'ensemble du plan. Il affiche une image à <em>1/4</em> de la définition originale.</p>
+            <p>Le bouton <em>Agrandir</em> permet d'afficher une image à la taille et la définition maximales.</p>
+            <p>Le bouton <em>Télécharger</em> permet de télécharge l'image affichée. Le résulat sera donc une image à une échelle <em>1/4</em> ou <em>1</em> en fonction du choix.</p>
+        </div>
+    </div>
+</body>
+</html>

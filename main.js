@@ -4,7 +4,7 @@ const path = require('path');
 const { app, BrowserWindow, Menu, ipcMain } = electron
 
 // Set environment
-process.env.NODE_ENV = 'production'
+// process.env.NODE_ENV = 'production'
 
 let mainWindow;
 let loadWindow
@@ -38,24 +38,24 @@ app.on('ready', () => {
 })
 
 // Handle new window
-function createAddWindow() {
-    loadWindow = new BrowserWindow({
-        width: 300,
-        height: 200,
-        title: 'Chargement des données',
+function createHelpWindow() {
+    helpWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        title: 'Aide',
         webPreferences: {
             nodeIntegration: true
         }
     })
-    loadWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'loadWindow.html'),
+    helpWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'helpWindow.html'),
         protocol: 'file:',
         slashes: true        
     }))
 
     // Clear loadWindow on quit
-    loadWindow.on('close', ()   => {
-        loadWindow = null
+    helpWindow.on('close', ()   => {
+        helpWindow = null
     })
 }
 
@@ -95,6 +95,17 @@ const mainMenuTemplate = [
                 accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
                 click() {
                     app.quit()
+                }
+            }
+        ]
+    },
+    {
+        label: 'Aide',
+        submenu: [
+            {
+                label: 'Documentation',
+                click() {
+                    createHelpWindow()
                 }
             }
         ]
