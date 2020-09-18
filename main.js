@@ -38,7 +38,7 @@ app.on('ready', () => {
 })
 
 // Handle new window
-function createHelpWindow() {
+const createHelpWindow = () => {
     helpWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -136,7 +136,7 @@ if (process.env.NODE_ENV != 'production') {
     })
 }
 
-function dataLoab(file) {
+const dataLoab = (file) => {
     const readXLsxFile = require('read-excel-file/node')
     const db = require('electron-db')
     const location = path.join(__dirname, './')
@@ -166,7 +166,7 @@ function dataLoab(file) {
             } else {
                 obj.us = element[5]
             }
-            obj.date = ExcelDateToJSDate(element[6]).getFullYear()
+            obj.date = excelDateToJSDate(element[6]).getFullYear()
 
             // console.log(obj)
             
@@ -181,7 +181,7 @@ function dataLoab(file) {
     })
 }
 
-function carroyageLoad(file) {
+const carroyageLoad = (file) => {
     const readXLsxFile = require('read-excel-file/node')
     const db = require('electron-db')
     const location = path.join(__dirname, './')
@@ -217,7 +217,7 @@ function carroyageLoad(file) {
     })
 }
 
-function ExcelDateToJSDate(serial) {
+const excelDateToJSDate = (serial) => {
     var utc_days  = Math.floor(serial - 25569)
     var utc_value = utc_days * 86400;                                        
     var date_info = new Date(utc_value * 1000)

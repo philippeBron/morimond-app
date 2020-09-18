@@ -1,4 +1,4 @@
-function initApp() {
+const initApp = () => {
     const db = require('electron-db')
     const path = require('path')
     const location = path.join(__dirname, './')
@@ -10,7 +10,7 @@ function initApp() {
     let categories = []
     let unitesStrat = []
 
-    if(db.valid('fouilles', location)) {         
+    if (db.valid('fouilles', location)) {         
         db.getAll('fouilles', location, (succ, data) => {
             if(succ) {
                 data.forEach(element => {
@@ -87,7 +87,7 @@ function initApp() {
     divMap.style.visibility = "hidden"
 }
 
-function ExcelDateToJSDate(serial) {
+const excelDateToJSDate = (serial) => {
     var utc_days  = Math.floor(serial - 25569)
     var utc_value = utc_days * 86400;                                        
     var date_info = new Date(utc_value * 1000)
@@ -106,7 +106,7 @@ function ExcelDateToJSDate(serial) {
     return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds)
  }
 
- function selectorCheck(){
+ const selectorCheck = () => {
     const db = require('electron-db')
     const path = require('path')
     const location = path.join(__dirname, '/')
@@ -255,7 +255,7 @@ function ExcelDateToJSDate(serial) {
     }
 }
 
-function selectorUpdate(data){
+const selectorUpdate = (data) => {
     const selectAnnee = document.getElementById('annee')
     const selectCategorie = document.getElementById('categorie')
     const selectUnitesStrat = document.getElementById('uniteStrat')
@@ -336,7 +336,7 @@ function selectorUpdate(data){
     })
 }
 
-function showMap(scale) {
+const showMap = (scale) => {
     const db = require('electron-db')
     const path = require('path')
     const location = path.join(__dirname, '/')
@@ -470,7 +470,7 @@ function showMap(scale) {
     }
 }
 
-function displayMap(data, type, scale){
+const displayMap = (data, type, scale) => {
     const canvas = document.querySelector('#carroyage')
     const divMap = document.getElementById('map')
     const dlButton = document.getElementById('download')
@@ -624,7 +624,7 @@ function displayMap(data, type, scale){
         dlButton.style.visibility = "visible"
     } else {
         dlButton.style.visibility = "hidden"
-        document.getElementById('dataTable').innerHTML = ""
-        document.getElementById('dataTable').appendChild(dataTable)
+        // document.getElementById('dataTable').innerHTML = ""
+        // document.getElementById('dataTable').appendChild(dataTable)
     }
 }
