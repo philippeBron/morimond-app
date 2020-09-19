@@ -91,25 +91,6 @@ const initApp = () => {
     document.getElementById('dataTable').style.visibility = "hidden"
 }
 
-const excelDateToJSDate = (serial) => {
-    var utc_days  = Math.floor(serial - 25569)
-    var utc_value = utc_days * 86400;                                        
-    var date_info = new Date(utc_value * 1000)
- 
-    var fractional_day = serial - Math.floor(serial) + 0.0000001
- 
-    var total_seconds = Math.floor(86400 * fractional_day)
- 
-    var seconds = total_seconds % 60
- 
-    total_seconds -= seconds
- 
-    var hours = Math.floor(total_seconds / (60 * 60))
-    var minutes = Math.floor(total_seconds / 60) % 60
- 
-    return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds)
- }
-
  const selectorCheck = () => {
     const db = require('electron-db')
     const path = require('path')
@@ -260,15 +241,17 @@ const selectorUpdate = (data) => {
         let categorieExists = false
         let uniteStratExists = false
 
+        const { date, categorie, us } = element
+
         // get every existing years
-        if(element.date !== null) {
+        if(date !== null) {
             for (let i = 0; i < years.length; i++) {
-                if (element.date === years[i]) {
+                if (date === years[i]) {
                     yearExists = true
                 }
             }
             if (yearExists === false) {
-                years.push(element.date)
+                years.push(date)
             }
         }
         // sort years
@@ -277,27 +260,27 @@ const selectorUpdate = (data) => {
         years.reverse()
 
         // get every existing categories
-        if(element.categorie !== 'Categorie') {
+        if(categorie !== 'Categorie') {
             for (let i = 0; i < categories.length; i++) {
-                if (element.categorie.toLowerCase() === categories[i]) {
+                if (categorie.toLowerCase() === categories[i]) {
                     categorieExists = true
                 }
             }
             if (categorieExists === false) {
-                categories.push(element.categorie.toLowerCase())
+                categories.push(categorie.toLowerCase())
             }
         }
         categories.sort()
 
         // get every existing stratigraphic units
-        if(element.us !== null) {
+        if(us !== null) {
             for (let i = 0; i < unitesStrat.length; i++) {
-                if (element.us.toString().toLowerCase() === unitesStrat[i]) {
+                if (us.toString().toLowerCase() === unitesStrat[i]) {
                     uniteStratExists = true
                 }
             }
             if (uniteStratExists === false) {
-                unitesStrat.push(element.us.toString().toLowerCase())
+                unitesStrat.push(us.toString().toLowerCase())
             }
         }
         unitesStrat.sort()
@@ -325,140 +308,6 @@ const selectorUpdate = (data) => {
         opt.value = opt.text = uniteStrat
         selectUnitesStrat.appendChild(opt)
     })
-}
-
-const showMap = (scale) => {
-    const db = require('electron-db')
-    const path = require('path')
-    const location = path.join(__dirname, '/')
-    
-    const yearSelected = document.getElementById('yearSelected').checked
-    const categorieSelected = document.getElementById('categorieSelected').checked
-    const uniteStratSelected = document.getElementById('uniteStratSelected').checked
-
-    if (!yearSelected && !categorieSelected && !uniteStratSelected) {
-        alert(`Veuillez sélectionner au moins un critère.`)
-    }
-
-    let year = null
-    let categorie = null
-    let stratUnit = null
-
-    // check selected fields
-    if (yearSelected) {
-        year = parseInt(document.getElementById('annee').value)        
-    }
-    if (categorieSelected) {
-        categorie = document.getElementById('categorie').value      
-    }
-    if (uniteStratSelected) {
-        stratUnit = document.getElementById('uniteStrat').value.toString()     
-    }
-    
-    if(db.valid('fouilles', location)) {
-        if (yearSelected && categorieSelected && uniteStratSelected) {
-            console.log(year)
-            console.log(categorie)
-            console.log(stratUnit)
-            db.getRows('fouilles', location, {
-                date: year,
-                categorie: categorie,
-                us: stratUnit
-            }, (succ, data) => {
-                if(succ) {
-                    displayMap(data, 'multi', scale)
-                } else {
-                    console.log('An error has occured.')
-                    console.log(`Message: ${data}`)
-                    return null
-                }
-            })
-        } else if (yearSelected && categorieSelected) {
-            console.log(year)
-            console.log(categorie)
-            db.getRows('fouilles', location, {
-                date: year,
-                categorie: categorie
-            }, (succ, data) => {
-                if(succ) {
-                    displayMap(data, 'multi', scale)
-                } else {
-                    console.log('An error has occured.')
-                    console.log(`Message: ${data}`)
-                    return null
-                }
-            })
-        } else if (categorieSelected && uniteStratSelected) {
-            console.log(categorie)
-            console.log(stratUnit)
-            db.getRows('fouilles', location, {
-                categorie: categorie,
-                us: stratUnit
-            }, (succ, data) => {
-                if(succ) {
-                    displayMap(data, 'multi', scale)
-                } else {
-                    console.log('An error has occured.')
-                    console.log(`Message: ${data}`)
-                    return null
-                }
-            })
-        } else if (yearSelected && uniteStratSelected) {
-            console.log(year)
-            console.log(stratUnit)
-            db.getRows('fouilles', location, {
-                date: year,
-                us: stratUnit
-            }, (succ, data) => {
-                if(succ) {
-                    displayMap(data, 'mono', scale)
-                } else {
-                    console.log('An error has occured.')
-                    console.log(`Message: ${data}`)
-                    return null
-                }
-            })
-        } else if (yearSelected) {
-            console.log(year)
-            db.getRows('fouilles', location, {
-                date: year
-            }, (succ, data) => {
-                if(succ) {
-                    displayMap(data, 'mono', scale)
-                } else {
-                    console.log('An error has occured.')
-                    console.log(`Message: ${data}`)
-                    return null
-                }
-            })
-        } else if (categorieSelected) {
-            console.log(categorie)
-            db.getRows('fouilles', location, {
-                categorie: categorie
-            }, (succ, data) => {
-                if(succ) {
-                    displayMap(data, 'multi', scale)
-                } else {
-                    console.log('An error has occured.')
-                    console.log(`Message: ${data}`)
-                    return null
-                }
-            })
-        } else if (uniteStratSelected) {
-            console.log(stratUnit)
-            db.getRows('fouilles', location, {
-                us: stratUnit
-            }, (succ, data) => {
-                if(succ) {
-                    displayMap(data, 'mono', scale)
-                } else {
-                    console.log('An error has occured.')
-                    console.log(`Message: ${data}`)
-                    return null
-                }
-            })
-        }
-    }
 }
 
 const displayMap = async (scale) => {
@@ -652,7 +501,7 @@ const getData = () =>
                     } else {
                         console.log('An error has occured.')
                         console.log(`Message: ${data}`)
-                        return null
+                        reject({ 'title': null, 'data': null, 'type': null })
                     }
                 })
             } else if (yearSelected && categorieSelected) {
@@ -670,7 +519,7 @@ const getData = () =>
                     } else {
                         console.log('An error has occured.')
                         console.log(`Message: ${data}`)
-                        return null
+                        reject({ 'title': null, 'data': null, 'type': null })
                     }
                 })
             } else if (categorieSelected && uniteStratSelected) {
@@ -688,7 +537,7 @@ const getData = () =>
                     } else {
                         console.log('An error has occured.')
                         console.log(`Message: ${data}`)
-                        return null
+                        reject({ 'title': null, 'data': null, 'type': null })
                     }
                 })
             } else if (yearSelected && uniteStratSelected) {
@@ -706,7 +555,7 @@ const getData = () =>
                     } else {
                         console.log('An error has occured.')
                         console.log(`Message: ${data}`)
-                        return null
+                        reject({ 'title': null, 'data': null, 'type': null })
                     }
                 })
             } else if (yearSelected) {
@@ -723,7 +572,7 @@ const getData = () =>
                     } else {
                         console.log('An error has occured.')
                         console.log(`Message: ${data}`)
-                        return null
+                        reject({ 'title': null, 'data': null, 'type': null })
                     }
                 })
             } else if (categorieSelected) {
@@ -740,7 +589,7 @@ const getData = () =>
                     } else {
                         console.log('An error has occured.')
                         console.log(`Message: ${data}`)
-                        return null
+                        reject({ 'title': null, 'data': null, 'type': null })
                     }
                 })
             } else if (uniteStratSelected) {
@@ -757,7 +606,7 @@ const getData = () =>
                     } else {
                         console.log('An error has occured.')
                         console.log(`Message: ${data}`)
-                        return null
+                        reject({ 'title': null, 'data': null, 'type': null })
                     }
                 })
             }
