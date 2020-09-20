@@ -1,6 +1,6 @@
 {
   "name": "morimond-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "# Application de gestion des fouilles de l'abbaye de Morimond",
   "main": "main.js",
   "scripts": {
@@ -25,9 +25,11 @@
   },
   "homepage": "https://github.com/philippeBron/morimond-app#readme",
   "dependencies": {
-    "electron": "^9.1.2",
     "electron-db": "^0.15.7",
     "path": "^0.12.7",
-    "read-excel-file": "^4.0.6"
+    "read-excel-file": "^4.0.7"
+  },
+  "devDependencies": {
+    "electron": "^9.3.1"
   }
 }
