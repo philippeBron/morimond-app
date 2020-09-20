@@ -60,14 +60,18 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-8">
             <div class="row">
-                <div>
+                <div class="col-sm-4" id="carte">
+                    <h3>Cartographie</h3>
                     <input type="button" class="btn btn-primary" value="Visualiser" onclick="displayMap(0.25)">
                     <input type="button"class="btn btn-primary" value="Agrandir" onclick="displayMap(1.0)">
-                    <input type="button"class="btn btn-primary" value="Data" onclick="displayData()">
                 </div>
-            </div>
+                <div class="col-sm-4"id="donnees">
+                    <h3>Données</h3>
+                    <input type="button"class="btn btn-primary" value="Données" onclick="displayData()">
+                </div>
+        </div>
         </div>
     </div>
     <hr>
@@ -75,7 +79,7 @@
     </div>
     <div id="map">
         <a id="download" download="Carroyage.png" href="#">
-            <button type="button" class="btn btn-primary" id="download" name="downmoad" onclick="downloadCanvas()">Télécharger</button>
+            <button type="button" class="btn btn-primary" id="download" name="download" onclick="downloadCanvas()">Télécharger</button>
         </a>
         <canvas id="carroyage">
             <p>Carroyage du site de l'abbaye de Morimond</p>

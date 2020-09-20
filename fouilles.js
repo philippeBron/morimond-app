@@ -120,7 +120,7 @@ const initApp = () => {
         categorie = document.getElementById('categorie').value      
     }
     if (uniteStratSelected) {
-        stratUnit = document.getElementById('uniteStrat').value.toString()     
+        stratUnit = document.getElementById('uniteStrat').value.toString()
     }
     
     if(db.valid('fouilles', location)) {
