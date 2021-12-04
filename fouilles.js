@@ -412,6 +412,7 @@ const displayMap = async (scale) => {
                 ctx.font = '36px arial'
                 
                 // display data on map
+                // TODO adapt the size of the area according to the location in the ground
                 if (mapData.carroyage[y][x] != ".") {
                     ctx.fillText(mapData.carroyage[y][x], posX+30, posY+65);
                     for (let index = 0; index < zoneData.length; index++) {
