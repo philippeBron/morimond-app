@@ -377,6 +377,7 @@ const displayMap = async (scale) => {
 
     // display map with carroyage
     image.onload = function() {
+        console.log(`chargement image`);
         ctx.drawImage(image, 0, 0)
         
         if (type === 'multi') {
@@ -404,10 +405,20 @@ const displayMap = async (scale) => {
         }
 
         // draw grid
-        for (let posY = -10; posY < image.height; posY += 106) {
-            for (let posX = 15; posX < image.width; posX += 106) {
+        xSize = 1;
+        ySize = 1;
+        for (let posY = -10; posY < image.height; posY += 106*ySize) {
+            for (let posX = 15; posX < image.width; posX += 106*xSize) {
+                if (y == 26 && mapData.carroyage[y][x] != ".") {
+                    console.log(`ligne : ${y}`);
+                    xSize = 1.15;
+                    ySize = 1;
+                } else {
+                    xSize = 1;
+                    ySize = 1;
+                }
                 ctx.strokeStyle = 'rgb(0, 0, 0)'
-                ctx.strokeRect(posX, posY, 106, 106)
+                ctx.strokeRect(posX, posY, 106*xSize, 106*ySize)
                 ctx.fillStyle = 'black'
                 ctx.font = '36px arial'
                 
@@ -428,7 +439,7 @@ const displayMap = async (scale) => {
                             } else  if (zoneData[index].quantite >= 16) {
                                 ctx.fillStyle = 'rgba(100, 23, 14, 0.80)'
                             }
-                            ctx.fillRect(posX, posY, 106, 106) 
+                            ctx.fillRect(posX, posY, 106*xSize, 106*ySize) 
                         }                                    
                     }
                 }
