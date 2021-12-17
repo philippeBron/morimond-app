@@ -405,17 +405,15 @@ const displayMap = async (scale) => {
         }
 
         // draw grid
-        xSize = 1;
-        ySize = 1;
-        for (let posY = -10; posY < image.height; posY += 106*ySize) {
+        xSize = 1.1;
+        ySize = 0.99;
+        for (let posY = -50; posY < image.height; posY += 106*ySize) {
             for (let posX = 15; posX < image.width; posX += 106*xSize) {
-                if (y == 26 && mapData.carroyage[y][x] != ".") {
+                if (x == 8) {
                     console.log(`ligne : ${y}`);
-                    xSize = 1.15;
-                    ySize = 1;
+                    xSize = 1.75;
                 } else {
-                    xSize = 1;
-                    ySize = 1;
+                    xSize = 1.1;
                 }
                 ctx.strokeStyle = 'rgb(0, 0, 0)'
                 ctx.strokeRect(posX, posY, 106*xSize, 106*ySize)
