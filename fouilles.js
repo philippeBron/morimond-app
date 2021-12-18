@@ -408,12 +408,12 @@ const displayMap = async (scale) => {
         xSize = 1.1;
         ySize = 0.99;
         for (let posY = -50; posY < image.height; posY += 106*ySize) {
-            for (let posX = 15; posX < image.width; posX += 106*xSize) {
+            for (let posX = -50; posX < image.width; posX += 106*xSize) {
                 if (x == 8) {
                     console.log(`ligne : ${y}`);
-                    xSize = 1.75;
+                    xSize = 1.80;
                 } else {
-                    xSize = 1.1;
+                    xSize = 1.07;
                 }
                 ctx.strokeStyle = 'rgb(0, 0, 0)'
                 ctx.strokeRect(posX, posY, 106*xSize, 106*ySize)
