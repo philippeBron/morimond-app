@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./assets/css/bootstrap.css">
+    <link rel="stylesheet" href="./assets/css/bootstrap-theme.css">
+    <script src="./assets/js/bootstrap.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./fouilles.js"></script>
+    <title>Chargement</title>
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <div class="row">
+                <div class="col-sm-2">
+                    <img src="./assets/img/arton218-21877.png" alt="Morimond" height=100px/>
+                </div>
+                <div class="col-sm-10 text-center">
+                    <h1>Chargement des données</h1>
+                </div>
+            </div>
+        </header>
+        <div class="row" id="fileForm">
+            <form id="csvForm">
+                <input type="file" id="csvFile" accept="csv" />
+                <br>
+                <input type="submit" value="Charger" />
+            </form>
+        </div>
+        <div class="row" id="loading" hidden>
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4">
+                <img src="./assets/img/loading.gif" alt="chargement" height=200px>
+            </div>
+            <div class="col-sm-4"></div>
+        </div>
+    </div>    
+</body>
+<script>
+    const csvForm = document.getElementById("csvForm")
+    const csvFile = document.getElementById("csvFile")
+
+    csvForm.addEventListener("submit", function (e) {
+        e.preventDefault()
+        const filePath = csvFile.files[0].path
+        document.getElementById("fileForm").style.display = "none"
+        document.getElementById("loading").style.display = "block"
+        dataLoad(filePath)
+    })
+</script>
+</html>
