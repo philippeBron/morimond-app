@@ -6,8 +6,10 @@ const { app, BrowserWindow, Menu, ipcMain } = electron
 // Set environment
 process.env.NODE_ENV = 'production'
 
-let mainWindow;
-let loadWindow
+let mainWindow
+let loadDataWindow
+let loadCarroyageWindow
+let helpWindow
 
 // Listen for app to be ready
 app.on('ready', () => {
