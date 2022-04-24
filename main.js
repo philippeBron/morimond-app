@@ -53,15 +53,15 @@ const createHelpWindow = () => {
         slashes: true        
     }))
 
-    // Clear loadWindow on quit
+    // Clear helpWindow on quit
     helpWindow.on('close', ()   => {
         helpWindow = null
     })
 }
 
 
-const createLoadWindow = () => {
-    loadWindow = new BrowserWindow({
+const createLoadDataWindow = () => {
+    loadDataWindow = new BrowserWindow({
         width: 800,
         height: 600,
         title: 'Chargement',
@@ -69,15 +69,15 @@ const createLoadWindow = () => {
             nodeIntegration: true
         }
     })
-    loadWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'loadWindow.html'),
+    loadDataWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'loadDataWindow.html'),
         protocol: 'file:',
         slashes: true        
     }))
 
-    // Clear loadWindow on quit
-    loadWindow.on('close', ()   => {
-        loadWindow = null
+    // Clear loadDataWindow on quit
+    loadDataWindow.on('close', ()   => {
+        loadDataWindow = null
     })
 }
 
@@ -104,7 +104,7 @@ const mainMenuTemplate = [
                 label: 'Chargment des données',
                 click() {
                     // dataLoad('./base_de_donnees_compilee.xlsx')
-                    createLoadWindow()
+                    createLoadDataWindow()
                 }
             },
             {
