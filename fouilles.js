@@ -140,6 +140,44 @@ const dataLoad = (file) => {
     })
 }
 
+const carroyageLoad = (file) => {
+    const readXLsxFile = require('read-excel-file/node')
+    const db = require('electron-db')
+    const location = path.join(__dirname, './')
+
+    db.createTable('carroyage', location, (succ, msg) => {
+        console.log("Success: " + succ)
+        console.log("Message: " + msg)
+    })
+
+    if(db.valid('carroyage', location)) {
+        db.clearTable('carroyage', location, (succ, msg) => {
+            console.log(`Success: ${succ}`)
+            console.log(`Message: ${msg}`)
+        })
+    }
+
+    readXLsxFile(file).then((rows) => {
+        rows.forEach(element => {
+            let tab = []
+            for (let index = 0; index < 40; index++) {
+                tab.push(element[index])
+            }
+
+            console.log(tab)
+            
+            if(db.valid('carroyage', location)) {
+                db.insertTableContent('carroyage', location, tab, (succ, msg) => {
+                    console.log(`Success: ${succ}`)
+                    console.log(`Message: ${msg}`)
+                })
+            }
+        })
+        console.log(`Carroyage chargé.`)
+        window.close()
+    })
+}
+
 const excelDateToJSDate = (serial) => {
     var utc_days  = Math.floor(serial - 25569)
     var utc_value = utc_days * 86400;                                        

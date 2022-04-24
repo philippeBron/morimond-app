@@ -18,7 +18,7 @@
                     <img src="./assets/img/arton218-21877.png" alt="Morimond" height=100px/>
                 </div>
                 <div class="col-sm-10 text-center">
-                    <h1>Chargement des données</h1>
+                    <h1>Chargement carroyage</h1>
                 </div>
             </div>
         </header>
@@ -45,7 +45,7 @@
             </div>
 
         </div>
-    </div> 
+    </div>
 </body>
 <script>
     const csvForm = document.getElementById("csvForm")
@@ -56,7 +56,7 @@
         const filePath = csvFile.files[0].path
         document.getElementById("fileForm").style.display = "none"
         document.getElementById("loading").style.display = "block"
-        dataLoad(filePath)
+        carroyageLoad(filePath)
     })
 </script>
 </html>
