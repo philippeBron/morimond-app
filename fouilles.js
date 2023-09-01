@@ -1,10 +1,10 @@
-const path = require('path');
+const path = require('node:path')
 
 const { rejects } = require('assert')
 
 const initApp = () => {
     const db = require('electron-db')
-    const path = require('path')
+    const path = require('node:path')
     const location = path.join(__dirname, './')
     const selectAnnee = document.getElementById('annee')
     const selectCategorie = document.getElementById('categorie')
