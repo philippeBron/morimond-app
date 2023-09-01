@@ -51,7 +51,8 @@ const createHelpWindow = () => {
         height: 600,
         title: 'Aide',
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     })
     helpWindow.loadURL(url.format({
@@ -72,7 +73,8 @@ const createLoadDataWindow = () => {
         height: 600,
         title: 'Chargement',
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     })
     loadDataWindow.loadURL(url.format({
@@ -93,7 +95,8 @@ const createLoadCarroyageWindow = () => {
         height: 600,
         title: 'Chargement',
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     })
     loadCarroyageWindow.loadURL(url.format({
