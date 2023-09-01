@@ -1,7 +1,11 @@
-const electron = require('electron')
+const { 
+    app, 
+    BrowserWindow, 
+    Menu, 
+    ipcMain 
+} = require('electron')
 const url = require('url')
-const path = require('path');
-const { app, BrowserWindow, Menu, ipcMain } = electron
+const path = require('path')
 
 // Set environment
 process.env.NODE_ENV = 'production'
@@ -18,7 +22,8 @@ app.on('ready', () => {
         width: 1200,
         height: 1024,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     })
     // Load html into window
@@ -46,7 +51,8 @@ const createHelpWindow = () => {
         height: 600,
         title: 'Aide',
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     })
     helpWindow.loadURL(url.format({
@@ -67,7 +73,8 @@ const createLoadDataWindow = () => {
         height: 600,
         title: 'Chargement',
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     })
     loadDataWindow.loadURL(url.format({
@@ -88,7 +95,8 @@ const createLoadCarroyageWindow = () => {
         height: 600,
         title: 'Chargement',
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     })
     loadCarroyageWindow.loadURL(url.format({
