@@ -30,6 +30,6 @@
     "read-excel-file": "^5.5.1"
   },
   "devDependencies": {
-    "electron": "^24.1.2"
+    "electron": "^24.7.1"
   }
 }
