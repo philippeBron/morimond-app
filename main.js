@@ -23,7 +23,8 @@ app.on('ready', () => {
         height: 1024,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false, // TODO: Enable contextIsolation and use preload scripts
+            enableRemoteModule: false
         }
     })
     // Load html into window
@@ -52,7 +53,8 @@ const createHelpWindow = () => {
         title: 'Aide',
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false, // TODO: Enable contextIsolation and use preload scripts
+            enableRemoteModule: false
         }
     })
     helpWindow.loadURL(url.format({
@@ -74,7 +76,8 @@ const createLoadDataWindow = () => {
         title: 'Chargement',
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false, // TODO: Enable contextIsolation and use preload scripts
+            enableRemoteModule: false
         }
     })
     loadDataWindow.loadURL(url.format({
@@ -96,7 +99,8 @@ const createLoadCarroyageWindow = () => {
         title: 'Chargement',
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false, // TODO: Enable contextIsolation and use preload scripts
+            enableRemoteModule: false
         }
     })
     loadCarroyageWindow.loadURL(url.format({
@@ -113,6 +117,7 @@ const createLoadCarroyageWindow = () => {
 
 // Catch data:file
 ipcMain.on('data:load', (e, file) => {
+    // TODO: Validate and sanitize the file input
     loadDB(file)
     // mainWindow.webContents.send('data:load', file)
     // loadWindow.close()
@@ -120,6 +125,7 @@ ipcMain.on('data:load', (e, file) => {
 
 // Catch carroyage:file
 ipcMain.on('carroyage:load', (e, file) => {
+    // TODO: Validate and sanitize the file input
     console.log(file)
     mainWindow.webContents.send('carroyage:load', file)
     loadWindow.close()
@@ -189,4 +195,3 @@ if (process.env.NODE_ENV != 'production') {
         ]
     })
 }
-
