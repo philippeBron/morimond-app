@@ -15,6 +15,7 @@ let loadDataWindow
 let loadCarroyageWindow
 let helpWindow
 
+
 // Listen for app to be ready
 app.on('ready', () => {
     // Create a new window
