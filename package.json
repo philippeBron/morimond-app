@@ -5,9 +5,37 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds --version-string.CompanyName=Fifousoft --version-string.FileDescription=CE --version-string.ProductName=\"App Morimond\"",
-    "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=Fifousoft --version-string.FileDescription=CE --version-string.ProductName=\"App Morimond\"",
-    "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=assets/icons/png/icon.png --prune=true --out=release-builds --version-string.CompanyName=Fifousoft --version-string.FileDescription=CE --version-string.ProductName=\"App Morimond\""
+    "package": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac --x64 --arm64",
+    "dist:win": "electron-builder --win --x64 --ia32",
+    "dist:linux": "electron-builder --linux --x64 --arm64",
+    "dist:all": "electron-builder --mac --win --linux --x64 --arm64"
+  },
+  "build": {
+    "appId": "com.fifousoft.morimondapp",
+    "productName": "App Morimond",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!morimond-app.zip",
+      "!dist"
+    ],
+    "mac": {
+      "icon": "assets/icons/mac/icon.icns",
+      "target": ["dmg", "zip"]
+    },
+    "win": {
+      "icon": "assets/icons/win/icon.ico",
+      "target": ["nsis", "zip"]
+    },
+    "linux": {
+      "icon": "assets/icons/png/icon.png",
+      "target": ["AppImage", "deb"],
+      "maintainer": "Philippe Bron <philippe.bron@example.com>"
+    }
   },
   "repository": {
     "type": "git",
@@ -18,7 +46,7 @@
     "morimond",
     "fouilles"
   ],
-  "author": "Philippe Bron",
+  "author": "Philippe Bron <philippe.bron@example.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/philippeBron/morimond-app/issues"
@@ -30,6 +58,7 @@
     "read-excel-file": "^5.5.1"
   },
   "devDependencies": {
-    "electron": "^43.3.0"
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3"
   }
 }
