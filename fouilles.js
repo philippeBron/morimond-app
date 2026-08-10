@@ -10,7 +10,7 @@ let currentFouillesData = null; // last queried data
 let drawnCells = []; // grid coordinate mapping
 
 // Chart instances
-let yearChartInstance = null;
+let statsChartInstance = null;
 let tableRowsData = [];
 
 // Initialize App
@@ -879,21 +879,52 @@ const generateStats = async () => {
     // Check if Chart.js is ready
     if (typeof Chart === 'undefined') return;
 
-    if (yearChartInstance) yearChartInstance.destroy();
+    if (statsChartInstance) statsChartInstance.destroy();
 
-    // Years Chart (Bar)
-    const yearLabels = Object.keys(yearsMap).sort();
-    const yearValues = yearLabels.map(y => yearsMap[y]);
-    if (yearLabels.length > 0) {
-        const ctxYear = document.getElementById('yearChart').getContext('2d');
-        yearChartInstance = new Chart(ctxYear, {
+    const yearSelected = document.getElementById('yearSelected').checked;
+    const categorieSelected = document.getElementById('categorieSelected').checked;
+
+    let chartLabels = [];
+    let chartValues = [];
+    let chartTitle = "";
+    let chartLabel = "";
+    let chartColor = '#3b82f6';
+
+    if (yearSelected && !categorieSelected) {
+        // Show categories for selected year
+        chartLabels = Object.keys(categoriesMap).sort();
+        chartValues = chartLabels.map(c => categoriesMap[c]);
+        const selectedYear = document.getElementById('annee').value;
+        chartTitle = `Objets par Catégorie (Année ${selectedYear})`;
+        chartLabel = 'Quantité';
+        chartColor = '#10b981'; // Green for categories
+    } else {
+        // Show years (default, or filtered by category)
+        chartLabels = Object.keys(yearsMap).sort();
+        chartValues = chartLabels.map(y => yearsMap[y]);
+        
+        if (categorieSelected) {
+            const selectedCat = document.getElementById('categorie').value;
+            chartTitle = `Objets par Année (Catégorie: ${selectedCat})`;
+        } else {
+            chartTitle = "Objets par Année";
+        }
+        chartLabel = 'Objets trouvés';
+        chartColor = '#3b82f6'; // Blue for years
+    }
+
+    document.getElementById('statsChartTitle').textContent = chartTitle;
+
+    if (chartLabels.length > 0) {
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        statsChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: yearLabels,
+                labels: chartLabels,
                 datasets: [{
-                    label: 'Objets trouvés',
-                    data: yearValues,
-                    backgroundColor: '#3b82f6',
+                    label: chartLabel,
+                    data: chartValues,
+                    backgroundColor: chartColor,
                     borderRadius: 6
                 }]
             },
