@@ -1,44 +1,129 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="utf-8" />
-    <link rel="stylesheet" href="./assets/css/bootstrap.css">
-    <link rel="stylesheet" href="./assets/css/bootstrap-theme.css">
-    <script src="./assets/js/bootstrap.js"></script>
-    
-    <title>Aide</title>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Aide - Documentation</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header.page-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 24px 32px;
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            margin-bottom: 30px;
+        }
+
+        header img {
+            height: 60px;
+            border-radius: 8px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 32px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            line-height: 1.6;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        strong {
+            color: #fff;
+        }
+
+        .footer {
+            border-top: 1px solid var(--card-border);
+            padding: 20px 0;
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header class="page-header">
-            <div class="row">
-                <div class="col-sm-2">
-                    <img src="./assets/img/arton218-21877.png" alt="Morimond" height=100px/>
-                </div>
-                <div class="col-sm-10 text-center">
-                    <h1>Documentation</h1>
-                </div>
-            </div>
+            <img src="./assets/img/arton218-21877.png" alt="Morimond" />
+            <h1>Aide & Documentation</h1>
         </header>
-        <div class="row">
-            L'application se lance en utilisant le fichier `.exe` se trouvant à la racine du répertoire de l'application.
-            <h2>Chargement des données</h2>
-            </p>Le chargement des données de fouille et du carroyage se font au travers du menu FIchier de l'application. Le menu <em>Chargement des données</em> utilise le fichier <strong>base_de_donnees_consolidee.xlsx</strong> qui doit être positionné dans le répertoire racine de l'application. Le menu <em>Chargement du carroyage</em> fait appel au fihier <strong>carroyage.xlsx</strong> qui doit être également enregistré dans le répertoire racine de l'application.</p>
 
-            <p>Le chargement de ces deux fichiers crées les fichiers <strong>.json</strong> qui serviront de base de données locale à l'application. Une fois utilisés, les fichiers <strong>.xlsx</strong> ne sont plus nécessaire au fonctionnement de l'application. Les fichiers générés sont <strong>fouilles.json</strong> pour les données de fouilles et <strong>carroyage.json</strong> pour les données du carroyage à utiliser.<p>
+        <div class="content-card">
+            <h2>Fonctionnement Général</h2>
+            <p>L'application permet d'archiver, de visualiser et d'analyser le carroyage cartographique et les données de fouilles archéologiques du chantier de l'abbaye de Morimond.</p>
+
+            <h2>Chargement des Données</h2>
+            <p>Le chargement des données de fouille et du carroyage s'effectue au travers du menu <strong>Fichier</strong> de l'application en haut de l'écran.</p>
+            <p>
+                - Le menu <strong>Chargement des données</strong> permet d'importer le fichier de données fouilles au format Excel (ex. <code>base_de_donnees_consolidee.xlsx</code>).<br>
+                - Le menu <strong>Chargement du carroyage</strong> permet d'importer le fichier Excel de définition de grille (ex. <code>carroyage.xlsx</code>).
+            </p>
+            <p>L'importation génère des fichiers JSON locaux (<code>fouilles.json</code> et <code>carroyage.json</code>) à la racine de l'application, ce qui permet à l'application de fonctionner de manière autonome sans avoir besoin de conserver les fichiers Excel d'origine.</p>
                     
-            <h2>Visualisation</h2>
-            <p>Le bouton <em>Visualiser</em> permet de générer une carte donnant une vue d'ensemble du plan. Il affiche une image à <em>1/4</em> de la définition originale.</p>
-            <p>Le bouton <em>Agrandir</em> permet d'afficher une image à la taille et la définition maximales.</p>
-            <p>Le bouton <em>Télécharger</em> permet de télécharge l'image affichée. Le résulat sera donc une image à une échelle <em>1/4</em> ou <em>1</em> en fonction du choix.</p>
+            <h2>Visualisation & Cartographie</h2>
+            <p>- Le bouton <strong>Visualiser</strong> génère un rendu du plan de fouilles à <em>1/4</em> de sa taille d'origine pour une manipulation fluide.</p>
+            <p>- Le bouton <strong>Agrandir</strong> permet d'ouvrir le plan à sa résolution maximale originale (échelle 1:1).</p>
+            <p>- Le bouton <strong>Télécharger</strong> (disponible après avoir cliqué sur <em>Agrandir</em> ou <em>Visualiser</em>) exporte le rendu actuel sous la forme d'un fichier image PNG.</p>
         </div>
-    </div>
-    <div class="footer">
-        <div class="row">
-            <div class="col-sm-10"></div>
-            <div class="col-sm-2">
-                <i class="stg-direc">&copy; fifouSoft 2022</i>
-            </div>
 
+        <div class="footer">
+            <span>Abbaye de Morimond</span>
+            <i>&copy; fifouSoft 2026</i>
         </div>
     </div>
 </body>

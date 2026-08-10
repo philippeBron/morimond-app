@@ -1,97 +1,361 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="utf-8" />
-    <link rel="stylesheet" href="./assets/css/bootstrap.css">
-    <link rel="stylesheet" href="./assets/css/bootstrap-theme.css">
-    <script src="./assets/js/bootstrap.min.js"></script>
-
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="./fouilles.js"></script>
     <title>Corroyage de Morimond</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --glow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header.page-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 24px 32px;
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        header img {
+            height: 80px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .intro-text {
+            color: var(--text-muted);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+
+        /* Filter Grid */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .filter-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .filter-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .filter-card label.title {
+            display: block;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background: rgba(15, 23, 42, 0.6);
+            color: #fff;
+            font-family: inherit;
+            font-size: 15px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .checkbox-container input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        /* Action Buttons */
+        .actions-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 24px;
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            margin-bottom: 40px;
+        }
+
+        .actions-header {
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            box-shadow: var(--glow);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+        }
+
+        /* Results Area */
+        #dataTable {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(12px);
+            overflow-x: auto;
+        }
+
+        #dataTable h2, #map h2 {
+            margin-top: 0;
+            font-size: 22px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--card-border);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        table.table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--text-main);
+        }
+
+        table.table th, table.table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        table.table th {
+            font-weight: 600;
+            color: #fff;
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        table.table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        table.table-striped tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        #map {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(12px);
+            text-align: center;
+        }
+
+        #map canvas {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            margin-top: 20px;
+        }
+
+        #download-wrapper {
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Footer */
+        .footer {
+            border-top: 1px solid var(--card-border);
+            padding: 20px 0;
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .footer i {
+            font-style: normal;
+        }
+    </style>
 </head>
 <body onload="initApp()">
     <div class="container">
         <header class="page-header">
-            <div class="row">
-                <div class="col-sm-2">
-                    <img src="./assets/img/arton218-21877.png" alt="Morimond" height=100%/>
-                </div>
-                <div class="col-sm-10 text-center">
-                    <h1>Carroyage du site archéologique <br> de l'abbaye de Morimond</h1>
-                </div>
+            <img src="./assets/img/arton218-21877.png" alt="Morimond" />
+            <div>
+                <h1>Carroyage du site archéologique<br/>de l'abbaye de Morimond</h1>
             </div>
         </header>
-        <p>Ce menu permet de sélectionner la catégorie et/ou l'année de fouille à projeter sur le fond de carte du chantier de l'abbaye de Morimond.</p>
-        <div class="row">
-            <div class="col-sm-4">
-                <div class="row">
-                    <div>
-                        <label for="annee">Année</label>
-                        <br>
-                        <select class="form-control" name="annee" id="annee"></select>
-                        <br>
-                        <label class="form-check-label" for="yearSelected">Sélectionner</label>
-                        <input class="form-check-input" type="checkbox" id="yearSelected" name="yearSelected" onclick="selectorCheck()">
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <div class="row">
-                    <div>
-                        <label for="categorie">Catégogie</label>
-                        <br>
-                        <select class="form-control" name="categorie" id="categorie"></select>
-                        <br>
-                        <label class="form-check-label" for="categorieSelected">Sélectionner</label>
-                        <input class="form-check-input" type="checkbox" id="categorieSelected" name="categorieSelected" onclick="selectorCheck()">
-                        <br>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <div class="row">
-                    <div>
-                        <label for="uniteStrat">Unité Stratigraphique</label>
-                        <br>
-                        <select class="form-control" name="uniteStrat" id="uniteStrat"></select>
-                        <br>
-                        <label class="form-check-label" for="uniteStratSelected">Sélectionner</label>
-                        <input class="form-check-input" type="checkbox" id="uniteStratSelected" name="uniteStratSelected" onclick="selectorCheck()">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-8">
-            <div class="row">
-                <div class="col-sm-4" id="carte">
-                    <h3>Cartographie</h3>
-                    <input type="button" class="btn btn-primary" value="Visualiser" onclick="displayMap(0.25)">
-                    <input type="button"class="btn btn-primary" value="Agrandir" onclick="displayMap(1.0)">
-                </div>
-                <div class="col-sm-4"id="donnees">
-                    <h3>Données</h3>
-                    <input type="button"class="btn btn-primary" value="Données" onclick="displayData()">
-                </div>
-        </div>
-        </div>
-    </div>
-    <hr>
-    <div id="dataTable">
-    </div>
-    <div id="map">
-        <a id="download" download="Carroyage.png" href="#">
-            <button type="button" class="btn btn-primary" id="download" name="download" onclick="downloadCanvas()">Télécharger</button>
-        </a>
-        <canvas id="carroyage">
-            <p>Carroyage du site de l'abbaye de Morimond</p>
-        </canvas>
-    </div>
-    <div class="footer">
-        <div class="row">
-            <div class="col-sm-10"></div>
-            <div class="col-sm-2">
-                <i class="stg-direc">&copy; fifouSoft 2022</i>
+
+        <p class="intro-text">
+            Ce menu permet de sélectionner la catégorie et/ou l'année de fouille à projeter sur le fond de carte du chantier de l'abbaye de Morimond.
+        </p>
+
+        <div class="filter-grid">
+            <!-- Card Année -->
+            <div class="filter-card">
+                <label class="title" for="annee">Année</label>
+                <select class="form-control" name="annee" id="annee"></select>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="yearSelected" name="yearSelected" onclick="selectorCheck()" />
+                    Filtrer par année
+                </label>
             </div>
 
+            <!-- Card Catégorie -->
+            <div class="filter-card">
+                <label class="title" for="categorie">Catégorie</label>
+                <select class="form-control" name="categorie" id="categorie"></select>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="categorieSelected" name="categorieSelected" onclick="selectorCheck()" />
+                    Filtrer par catégorie
+                </label>
+            </div>
+
+            <!-- Card Unité Stratigraphique -->
+            <div class="filter-card">
+                <label class="title" for="uniteStrat">Unité Stratigraphique</label>
+                <select class="form-control" name="uniteStrat" id="uniteStrat"></select>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="uniteStratSelected" name="uniteStratSelected" onclick="selectorCheck()" />
+                    Filtrer par US
+                </label>
+            </div>
+        </div>
+
+        <div class="actions-section">
+            <h3 class="actions-header">Actions de visualisation</h3>
+            <div class="btn-group">
+                <input type="button" class="btn btn-primary" value="Visualiser (1/4)" onclick="displayMap(0.25)" />
+                <input type="button" class="btn btn-primary" value="Agrandir (Plein écran)" onclick="displayMap(1.0)" />
+                <input type="button" class="btn btn-success" value="Afficher les Données" onclick="displayData()" />
+            </div>
+        </div>
+
+        <!-- Data Results Table -->
+        <div id="dataTable" style="visibility: hidden;"></div>
+
+        <!-- Map Canvas Visualizer -->
+        <div id="map" style="visibility: hidden;">
+            <div id="download-wrapper">
+                <a id="download" download="Carroyage.png" href="#">
+                    <button type="button" class="btn btn-success" id="download" name="download" onclick="downloadCanvas()">Télécharger l'image</button>
+                </a>
+            </div>
+            <canvas id="carroyage">
+                <p>Carroyage du site de l'abbaye de Morimond</p>
+            </canvas>
+        </div>
+
+        <div class="footer">
+            <span>Abbaye de Morimond - Gestionnaire de Chantier</span>
+            <i>&copy; fifouSoft 2026</i>
         </div>
     </div>
 </body>

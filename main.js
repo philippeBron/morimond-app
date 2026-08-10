@@ -2,10 +2,14 @@ const {
     app, 
     BrowserWindow, 
     Menu, 
-    ipcMain 
+    ipcMain,
+    dialog
 } = require('electron')
 const url = require('url')
 const path = require('path')
+const db = require('electron-db')
+const readXlsxFile = require('read-excel-file/node')
+const fs = require('fs')
 
 // Set environment
 process.env.NODE_ENV = 'production'
@@ -15,47 +19,245 @@ let loadDataWindow
 let loadCarroyageWindow
 let helpWindow
 
+const dbLocation = __dirname
+
+const excelDateToJSDate = (serial) => {
+    var utc_days  = Math.floor(serial - 25569)
+    var utc_value = utc_days * 86400;                                        
+    var date_info = new Date(utc_value * 1000)
+ 
+    var fractional_day = serial - Math.floor(serial) + 0.0000001
+ 
+    var total_seconds = Math.floor(86400 * fractional_day)
+ 
+    var seconds = total_seconds % 60
+ 
+    total_seconds -= seconds
+ 
+    var hours = Math.floor(total_seconds / (60 * 60))
+    var minutes = Math.floor(total_seconds / 60) % 60
+ 
+    return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds)
+}
+
+// Database IPC handlers
+ipcMain.handle('db:getAll', async (event, table) => {
+    return new Promise((resolve, reject) => {
+        if (db.valid(table, dbLocation)) {
+            db.getAll(table, dbLocation, (succ, data) => {
+                if (succ) resolve(data)
+                else reject(data)
+            })
+        } else {
+            resolve([])
+        }
+    })
+})
+
+ipcMain.handle('db:getRows', async (event, table, query) => {
+    return new Promise((resolve, reject) => {
+        if (db.valid(table, dbLocation)) {
+            db.getRows(table, dbLocation, query, (succ, data) => {
+                if (succ) resolve(data)
+                else reject(data)
+            })
+        } else {
+            resolve([])
+        }
+    })
+})
+
+ipcMain.handle('db:get-carroyage-json', async () => {
+    try {
+        const jsonPath = path.join(dbLocation, 'carroyage.json')
+        if (fs.existsSync(jsonPath)) {
+            const data = fs.readFileSync(jsonPath, 'utf8')
+            return JSON.parse(data)
+        }
+        return null
+    } catch (err) {
+        console.error(err)
+        return null
+    }
+})
+
+// File import handlers
+ipcMain.handle('file:select-and-import-data', async (event) => {
+    const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+        properties: ['openFile'],
+        filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
+    })
+    
+    if (result.canceled || result.filePaths.length === 0) {
+        return { success: false, message: 'Importation annulée' }
+    }
+    
+    const file = result.filePaths[0]
+    
+    try {
+        // Create / Clear Table
+        await new Promise((resolve, reject) => {
+            db.createTable('fouilles', dbLocation, (succ, msg) => {
+                if (succ) resolve()
+                else reject(msg)
+            })
+        })
+        
+        if (db.valid('fouilles', dbLocation)) {
+            await new Promise((resolve, reject) => {
+                db.clearTable('fouilles', dbLocation, (succ, msg) => {
+                    if (succ) resolve()
+                    else reject(msg)
+                })
+            })
+        }
+        
+        const rows = await readXlsxFile(file)
+        
+        for (const element of rows) {
+            let obj = new Object()
+            obj.zone = element[0]
+            obj.categorie = element[1]
+            obj.sousCategorie = element[2]
+            obj.quantite = element[3]
+            obj.complement = element[4]
+            if (element[5] !== null) {
+                obj.us = element[5].toString()                
+            } else {
+                obj.us = element[5]
+            }
+            if (element[6] !== null && typeof element[6] === 'number') {
+                obj.date = excelDateToJSDate(element[6]).getFullYear()
+            } else if (element[6] instanceof Date) {
+                obj.date = element[6].getFullYear()
+            } else {
+                obj.date = null
+            }
+            
+            if (db.valid('fouilles', dbLocation)) {
+                await new Promise((resolve, reject) => {
+                    db.insertTableContent('fouilles', dbLocation, obj, (succ, msg) => {
+                        if (succ) resolve()
+                        else reject(msg)
+                    })
+                })
+            }
+        }
+        
+        if (mainWindow) {
+            mainWindow.webContents.send('fouilles:load')
+        }
+        
+        return { success: true, message: 'Données de fouilles chargées avec succès !' }
+    } catch (error) {
+        console.error(error)
+        return { success: false, message: error.message || error }
+    }
+})
+
+ipcMain.handle('file:select-and-import-carroyage', async (event) => {
+    const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+        properties: ['openFile'],
+        filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
+    })
+    
+    if (result.canceled || result.filePaths.length === 0) {
+        return { success: false, message: 'Importation annulée' }
+    }
+    
+    const file = result.filePaths[0]
+    
+    try {
+        await new Promise((resolve, reject) => {
+            db.createTable('carroyage', dbLocation, (succ, msg) => {
+                if (succ) resolve()
+                else reject(msg)
+            })
+        })
+        
+        if (db.valid('carroyage', dbLocation)) {
+            await new Promise((resolve, reject) => {
+                db.clearTable('carroyage', dbLocation, (succ, msg) => {
+                    if (succ) resolve()
+                    else reject(msg)
+                })
+            })
+        }
+        
+        const rows = await readXlsxFile(file)
+        
+        for (const element of rows) {
+            let tab = []
+            for (let index = 0; index < 40; index++) {
+                tab.push(element[index])
+            }
+            
+            if (db.valid('carroyage', dbLocation)) {
+                await new Promise((resolve, reject) => {
+                    db.insertTableContent('carroyage', dbLocation, tab, (succ, msg) => {
+                        if (succ) resolve()
+                        else reject(msg)
+                    })
+                })
+            }
+        }
+        
+        // Also notify the main window to update if open
+        if (mainWindow) {
+            mainWindow.webContents.send('carroyage:load')
+        }
+        
+        return { success: true, message: 'Carroyage chargé avec succès !' }
+    } catch (error) {
+        console.error(error)
+        return { success: false, message: error.message || error }
+    }
+})
+
+// Listen for window close requests from renderer
+ipcMain.on('window:close', (event) => {
+    const webContents = event.sender
+    const win = BrowserWindow.fromWebContents(webContents)
+    if (win) {
+        win.close()
+    }
+})
+
+const getWebPreferences = () => ({
+    nodeIntegration: false,
+    contextIsolation: true,
+    sandbox: true,
+    preload: path.join(__dirname, 'preload.js')
+})
+
 // Listen for app to be ready
 app.on('ready', () => {
-    // Create a new window
     mainWindow = new BrowserWindow({
         width: 1200,
         height: 1024,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false, // TODO: Enable contextIsolation and use preload scripts
-            enableRemoteModule: false
-        }
+        webPreferences: getWebPreferences()
     })
-    // Load html into window
+    
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'mainWindow.html'),
         protocol: 'file:',
         slashes: true
     }))
 
-    // Quit app when closed
     mainWindow.on('closed', () => {
         app.quit()
     })
 
-    // Build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate)
-    //Insert menu
     Menu.setApplicationMenu(mainMenu)
 })
 
-// Handle new window
 const createHelpWindow = () => {
     helpWindow = new BrowserWindow({
         width: 800,
         height: 600,
         title: 'Aide',
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false, // TODO: Enable contextIsolation and use preload scripts
-            enableRemoteModule: false
-        }
+        webPreferences: getWebPreferences()
     })
     helpWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'helpWindow.html'),
@@ -63,8 +265,7 @@ const createHelpWindow = () => {
         slashes: true        
     }))
 
-    // Clear helpWindow on quit
-    helpWindow.on('close', ()   => {
+    helpWindow.on('close', () => {
         helpWindow = null
     })
 }
@@ -74,11 +275,7 @@ const createLoadDataWindow = () => {
         width: 800,
         height: 600,
         title: 'Chargement',
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false, // TODO: Enable contextIsolation and use preload scripts
-            enableRemoteModule: false
-        }
+        webPreferences: getWebPreferences()
     })
     loadDataWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'loadDataWindow.html'),
@@ -86,8 +283,7 @@ const createLoadDataWindow = () => {
         slashes: true        
     }))
 
-    // Clear loadDataWindow on quit
-    loadDataWindow.on('close', ()   => {
+    loadDataWindow.on('close', () => {
         loadDataWindow = null
     })
 }
@@ -97,11 +293,7 @@ const createLoadCarroyageWindow = () => {
         width: 800,
         height: 600,
         title: 'Chargement',
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false, // TODO: Enable contextIsolation and use preload scripts
-            enableRemoteModule: false
-        }
+        webPreferences: getWebPreferences()
     })
     loadCarroyageWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'loadCarroyageWindow.html'),
@@ -109,27 +301,10 @@ const createLoadCarroyageWindow = () => {
         slashes: true        
     }))
 
-    // Clear loadCarroyageWindow on quit
-    loadCarroyageWindow.on('close', ()   => {
+    loadCarroyageWindow.on('close', () => {
         loadCarroyageWindow = null
     })
 }
-
-// Catch data:file
-ipcMain.on('data:load', (e, file) => {
-    // TODO: Validate and sanitize the file input
-    loadDB(file)
-    // mainWindow.webContents.send('data:load', file)
-    // loadWindow.close()
-})
-
-// Catch carroyage:file
-ipcMain.on('carroyage:load', (e, file) => {
-    // TODO: Validate and sanitize the file input
-    console.log(file)
-    mainWindow.webContents.send('carroyage:load', file)
-    loadWindow.close()
-})
 
 // Create menu template
 const mainMenuTemplate = [
@@ -137,16 +312,14 @@ const mainMenuTemplate = [
         label: 'Fichier',
         submenu: [
             {
-                label: 'Chargment des données',
+                label: 'Chargement des données',
                 click() {
-                    // dataLoad('./base_de_donnees_compilee.xlsx')
                     createLoadDataWindow()
                 }
             },
             {
                 label: 'Chargement du carroyage',
                 click() {
-                    // carroyageLoad('./carroyage.xlsx')
                     createLoadCarroyageWindow()
                 }
             },
@@ -172,12 +345,23 @@ const mainMenuTemplate = [
     }
 ]
 
-// Fixes menu template on Mac (add emty object)
 if (process.platform == 'darwin') {
-    mainMenuTemplate.unshift({})
+    mainMenuTemplate.unshift({
+        label: app.name,
+        submenu: [
+            { role: 'about' },
+            { type: 'separator' },
+            { role: 'services' },
+            { type: 'separator' },
+            { role: 'hide' },
+            { role: 'hideOthers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            { role: 'quit' }
+        ]
+    })
 }
 
-// Add developer tools item menu if not in production
 if (process.env.NODE_ENV != 'production') {
     mainMenuTemplate.push({
         label: 'Developer Tools',
@@ -195,3 +379,4 @@ if (process.env.NODE_ENV != 'production') {
         ]
     })
 }
+

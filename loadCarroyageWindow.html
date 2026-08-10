@@ -2,61 +2,179 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="./assets/css/bootstrap.css">
-    <link rel="stylesheet" href="./assets/css/bootstrap-theme.css">
-    <script src="./assets/js/bootstrap.min.js"></script>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./fouilles.js"></script>
-    <title>Chargement</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Chargement du carroyage</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        header img {
+            max-height: 80px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: #fff;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            font-family: inherit;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        #loading {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #statusMsg {
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .footer {
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header class="page-header">
-            <div class="row">
-                <div class="col-sm-2">
-                    <img src="./assets/img/arton218-21877.png" alt="Morimond" height=100px/>
-                </div>
-                <div class="col-sm-10 text-center">
-                    <h1>Chargement carroyage</h1>
-                </div>
-            </div>
+        <header>
+            <img src="./assets/img/arton218-21877.png" alt="Morimond" />
+            <h1>Chargement du carroyage</h1>
         </header>
-        <div class="row" id="fileForm">
-            <form id="csvForm">
-                <input type="file" id="csvFile" accept="csv" />
-                <br>
-                <input type="submit" value="Charger" />
-            </form>
+        
+        <p>Sélectionnez le fichier Excel du carroyage (<strong>carroyage.xlsx</strong>) pour importer la grille cartographique.</p>
+        
+        <div id="fileForm">
+            <button id="selectBtn" class="btn">Sélectionner et Charger</button>
         </div>
-        <div class="row" id="loading" hidden>
-            <div class="col-sm-4"></div>
-            <div class="col-sm-4">
-                <img src="./assets/img/loading.gif" alt="chargement" height=200px>
-            </div>
-            <div class="col-sm-4"></div>
+        
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Importation en cours, veuillez patienter...</p>
         </div>
-    </div>
-    <div class="footer">
-        <div class="row">
-            <div class="col-sm-10"></div>
-            <div class="col-sm-2">
-                <i class="stg-direc">&copy; fifouSoft 2022</i>
-            </div>
 
+        <div id="statusMsg"></div>
+
+        <div class="footer">
+            <i>&copy; fifouSoft 2026</i>
         </div>
     </div>
+
+    <script>
+        const selectBtn = document.getElementById("selectBtn")
+        const fileForm = document.getElementById("fileForm")
+        const loading = document.getElementById("loading")
+        const statusMsg = document.getElementById("statusMsg")
+
+        selectBtn.addEventListener("click", async function () {
+            fileForm.style.display = "none"
+            loading.style.display = "block"
+            statusMsg.textContent = ""
+
+            try {
+                const res = await window.api.selectAndImportCarroyage()
+                if (res.success) {
+                    statusMsg.style.color = "#4ade80"
+                    statusMsg.textContent = res.message
+                    setTimeout(() => {
+                        window.api.closeCurrentWindow()
+                    }, 1500)
+                } else {
+                    statusMsg.style.color = "#f87171"
+                    statusMsg.textContent = res.message
+                    fileForm.style.display = "block"
+                }
+            } catch (err) {
+                statusMsg.style.color = "#f87171"
+                statusMsg.textContent = "Une erreur est survenue lors de l'importation."
+                fileForm.style.display = "block"
+                console.error(err)
+            } finally {
+                loading.style.display = "none"
+            }
+        })
+    </script>
 </body>
-<script>
-    const csvForm = document.getElementById("csvForm")
-    const csvFile = document.getElementById("csvFile")
-
-    csvForm.addEventListener("submit", function (e) {
-        e.preventDefault()
-        const filePath = csvFile.files[0].path
-        document.getElementById("fileForm").style.display = "none"
-        document.getElementById("loading").style.display = "block"
-        carroyageLoad(filePath)
-    })
-</script>
 </html>
