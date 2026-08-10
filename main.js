@@ -82,17 +82,20 @@ ipcMain.handle('db:get-carroyage-json', async () => {
 })
 
 // File import handlers
-ipcMain.handle('file:select-and-import-data', async (event) => {
-    const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
-        properties: ['openFile'],
-        filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
-    })
-    
-    if (result.canceled || result.filePaths.length === 0) {
-        return { success: false, message: 'Importation annulée' }
+ipcMain.handle('file:select-and-import-data', async (event, filePath) => {
+    let file = filePath
+    if (!file) {
+        const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+            properties: ['openFile'],
+            filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
+        })
+        
+        if (result.canceled || result.filePaths.length === 0) {
+            return { success: false, message: 'Importation annulée' }
+        }
+        
+        file = result.filePaths[0]
     }
-    
-    const file = result.filePaths[0]
     
     try {
         // Create / Clear Table
@@ -155,17 +158,20 @@ ipcMain.handle('file:select-and-import-data', async (event) => {
     }
 })
 
-ipcMain.handle('file:select-and-import-carroyage', async (event) => {
-    const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
-        properties: ['openFile'],
-        filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
-    })
-    
-    if (result.canceled || result.filePaths.length === 0) {
-        return { success: false, message: 'Importation annulée' }
+ipcMain.handle('file:select-and-import-carroyage', async (event, filePath) => {
+    let file = filePath
+    if (!file) {
+        const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+            properties: ['openFile'],
+            filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
+        })
+        
+        if (result.canceled || result.filePaths.length === 0) {
+            return { success: false, message: 'Importation annulée' }
+        }
+        
+        file = result.filePaths[0]
     }
-    
-    const file = result.filePaths[0]
     
     try {
         await new Promise((resolve, reject) => {
