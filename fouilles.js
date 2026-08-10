@@ -10,7 +10,6 @@ let currentFouillesData = null; // last queried data
 let drawnCells = []; // grid coordinate mapping
 
 // Chart instances
-let categoryChartInstance = null;
 let yearChartInstance = null;
 let tableRowsData = [];
 
@@ -880,39 +879,7 @@ const generateStats = async () => {
     // Check if Chart.js is ready
     if (typeof Chart === 'undefined') return;
 
-    if (categoryChartInstance) categoryChartInstance.destroy();
     if (yearChartInstance) yearChartInstance.destroy();
-
-    // Categories Chart (Donut)
-    const catLabels = Object.keys(categoriesMap);
-    const catValues = Object.values(categoriesMap);
-    if (catLabels.length > 0) {
-        const ctxCat = document.getElementById('categoryChart').getContext('2d');
-        categoryChartInstance = new Chart(ctxCat, {
-            type: 'doughnut',
-            data: {
-                labels: catLabels,
-                datasets: [{
-                    data: catValues,
-                    backgroundColor: [
-                        '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4'
-                    ],
-                    borderWidth: 1,
-                    borderColor: '#111827'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: { color: '#9ca3af', font: { family: 'Outfit', size: 12 } }
-                    }
-                }
-            }
-        });
-    }
 
     // Years Chart (Bar)
     const yearLabels = Object.keys(yearsMap).sort();

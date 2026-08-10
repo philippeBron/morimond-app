@@ -501,14 +501,8 @@
 
         .charts-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 24px;
-        }
-
-        @media (max-width: 900px) {
-            .charts-row {
-                grid-template-columns: 1fr;
-            }
         }
 
         /* Imports Grid & Drag-Drop Styles */
@@ -813,14 +807,8 @@
 
                     <div class="charts-row">
                         <div class="content-card" style="min-height: 320px;">
-                            <h3 style="margin-top:0; font-size:16px;">Objets par Catégorie</h3>
-                            <div style="position: relative; height: 260px; display: flex; align-items: center; justify-content: center;">
-                                <canvas id="categoryChart"></canvas>
-                            </div>
-                        </div>
-                        <div class="content-card" style="min-height: 320px;">
                             <h3 style="margin-top:0; font-size:16px;">Objets par Année</h3>
-                            <div style="position: relative; height: 260px; display: flex; align-items: center; justify-content: center;">
+                            <div style="position: relative; height: 260px;">
                                 <canvas id="yearChart"></canvas>
                             </div>
                         </div>
