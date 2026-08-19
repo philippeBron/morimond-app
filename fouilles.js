@@ -165,6 +165,38 @@ const selectorCheck = async () => {
             data = await window.api.dbGetAll('fouilles');
         }
         selectorUpdate(data);
+
+        // Automatically update map display and active views
+        const dataResult = await getData();
+        if (dataResult && dataResult.data) {
+            currentFouillesData = dataResult;
+            const dataTitleEl = document.getElementById('dataTitle');
+            if (dataTitleEl) {
+                dataTitleEl.innerHTML = dataResult.title || "Plan de Carroyage";
+            }
+            if (!currentMapData) {
+                currentMapData = await window.api.getCarroyageJson();
+            }
+            if (!mapImage) {
+                mapImage = new Image();
+                mapImage.onload = () => {
+                    drawMapInteractive();
+                    resetZoomAndPan();
+                };
+                mapImage.src = './assets/img/plan-morimond.jpg';
+            } else {
+                drawMapInteractive();
+            }
+
+            const activeTab = document.querySelector('.panel.active');
+            if (activeTab) {
+                if (activeTab.id === 'table-panel') {
+                    displayData();
+                } else if (activeTab.id === 'stats-panel') {
+                    generateStats();
+                }
+            }
+        }
     } catch (err) {
         console.error(err);
     }
