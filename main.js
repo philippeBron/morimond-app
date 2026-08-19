@@ -19,7 +19,27 @@ let loadDataWindow
 let loadCarroyageWindow
 let helpWindow
 
-const dbLocation = __dirname
+let dbLocation
+
+const initDbLocation = () => {
+    if (dbLocation) return dbLocation
+    dbLocation = app.getPath('userData')
+    if (!fs.existsSync(dbLocation)) {
+        fs.mkdirSync(dbLocation, { recursive: true })
+    }
+    ['fouilles.json', 'carroyage.json'].forEach(fileName => {
+        const targetPath = path.join(dbLocation, fileName)
+        const sourcePath = path.join(__dirname, fileName)
+        if (!fs.existsSync(targetPath) && fs.existsSync(sourcePath)) {
+            try {
+                fs.copyFileSync(sourcePath, targetPath)
+            } catch (err) {
+                console.error(`Impossible de copier ${fileName} dans userData:`, err)
+            }
+        }
+    })
+    return dbLocation
+}
 
 const excelDateToJSDate = (serial) => {
     var utc_days  = Math.floor(serial - 25569)
@@ -42,6 +62,7 @@ const excelDateToJSDate = (serial) => {
 
 // Database IPC handlers
 ipcMain.handle('db:getAll', async (event, table) => {
+    initDbLocation()
     return new Promise((resolve, reject) => {
         if (db.valid(table, dbLocation)) {
             db.getAll(table, dbLocation, (succ, data) => {
@@ -55,6 +76,7 @@ ipcMain.handle('db:getAll', async (event, table) => {
 })
 
 ipcMain.handle('db:getRows', async (event, table, query) => {
+    initDbLocation()
     return new Promise((resolve, reject) => {
         if (db.valid(table, dbLocation)) {
             db.getRows(table, dbLocation, query, (succ, data) => {
@@ -68,6 +90,7 @@ ipcMain.handle('db:getRows', async (event, table, query) => {
 })
 
 ipcMain.handle('db:get-carroyage-json', async () => {
+    initDbLocation()
     try {
         const jsonPath = path.join(dbLocation, 'carroyage.json')
         if (fs.existsSync(jsonPath)) {
@@ -83,6 +106,7 @@ ipcMain.handle('db:get-carroyage-json', async () => {
 
 // File import handlers
 ipcMain.handle('file:select-and-import-data', async (event, filePath) => {
+    initDbLocation()
     let file = filePath
     if (!file) {
         const parentWin = mainWindow || BrowserWindow.getFocusedWindow()
@@ -170,6 +194,7 @@ ipcMain.handle('file:select-and-import-data', async (event, filePath) => {
 })
 
 ipcMain.handle('file:select-and-import-carroyage', async (event, filePath) => {
+    initDbLocation()
     let file = filePath
     if (!file) {
         const parentWin = mainWindow || BrowserWindow.getFocusedWindow()
@@ -251,6 +276,7 @@ const getWebPreferences = () => ({
 
 // Listen for app to be ready
 app.on('ready', () => {
+    initDbLocation()
     mainWindow = new BrowserWindow({
         width: 1200,
         height: 1024,

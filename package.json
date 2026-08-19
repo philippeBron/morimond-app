@@ -14,7 +14,7 @@
   },
   "build": {
     "appId": "com.fifousoft.morimondapp",
-    "productName": "App Morimond",
+    "productName": "Chantier Abbaye de Morimond",
     "directories": {
       "output": "dist"
     },

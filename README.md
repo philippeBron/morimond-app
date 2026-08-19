@@ -1,4 +1,4 @@
-# Application de gestion des fouilles de l'abbaye de Morimond
+# Chantier Abbaye de Morimond
 
 Application de visualisation, de projection cartographique et d'analyse statistique des campagnes de fouilles archéologiques de l'abbaye de Morimond. Développée avec Electron.
 
