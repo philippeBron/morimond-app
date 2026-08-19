@@ -25,15 +25,24 @@
     ],
     "mac": {
       "icon": "assets/icons/mac/icon.icns",
-      "target": ["dmg", "zip"]
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
       "icon": "assets/icons/win/icon.ico",
-      "target": ["nsis", "zip"]
+      "target": [
+        "nsis",
+        "zip"
+      ]
     },
     "linux": {
       "icon": "assets/icons/png/icon.png",
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "maintainer": "Philippe Bron <philippe.bron@example.com>"
     }
   },
@@ -60,5 +69,8 @@
   "devDependencies": {
     "electron": "^43.3.0",
     "electron-builder": "^26.15.3"
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true
   }
 }

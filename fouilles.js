@@ -13,7 +13,7 @@ let currentFouillesData = null; // last queried data
 let drawnCells = []; // grid coordinate mapping
 
 // Chart instances
-let yearChartInstance = null;
+let statsChartInstance = null;
 let tableRowsData = [];
 
 // Initialize App
@@ -168,6 +168,38 @@ const selectorCheck = async () => {
             data = await api.dbGetAll('fouilles');
         }
         selectorUpdate(data);
+
+        // Automatically update map display and active views
+        const dataResult = await getData();
+        if (dataResult && dataResult.data) {
+            currentFouillesData = dataResult;
+            const dataTitleEl = document.getElementById('dataTitle');
+            if (dataTitleEl) {
+                dataTitleEl.innerHTML = dataResult.title || "Plan de Carroyage";
+            }
+            if (!currentMapData) {
+                currentMapData = await window.api.getCarroyageJson();
+            }
+            if (!mapImage) {
+                mapImage = new Image();
+                mapImage.onload = () => {
+                    drawMapInteractive();
+                    resetZoomAndPan();
+                };
+                mapImage.src = './assets/img/plan-morimond.jpg';
+            } else {
+                drawMapInteractive();
+            }
+
+            const activeTab = document.querySelector('.panel.active');
+            if (activeTab) {
+                if (activeTab.id === 'table-panel') {
+                    displayData();
+                } else if (activeTab.id === 'stats-panel') {
+                    generateStats();
+                }
+            }
+        }
     } catch (err) {
         console.error(err);
     }
@@ -284,7 +316,7 @@ const triggerDisplayMap = async () => {
             drawMapInteractive();
             resetZoomAndPan();
         };
-        mapImage.src = './assets/img/plan-v2_2019.jpg';
+        mapImage.src = './assets/img/plan-morimond.jpg';
     } else {
         drawMapInteractive();
     }
@@ -346,18 +378,12 @@ const drawMapInteractive = () => {
         drawnCells = [];
         let x = 0;
         let y = 0;
-        let xSize = 1.1;
-        let ySize = 0.99;
+        const xSize = 1.07;
+        const ySize = 0.99;
 
         for (let posY = -50; posY < mapImage.height; posY += 106 * ySize) {
             for (let posX = -50; posX < mapImage.width; posX += 106 * xSize) {
-                if (x === 8) {
-                    xSize = 1.80;
-                } else {
-                    xSize = 1.07;
-                }
-
-                const zoneName = (currentMapData.carroyage[y] && currentMapData.carroyage[y][x]) ? currentMapData.carroyage[y][x] : ".";
+                const zoneName = (x > 0 && currentMapData.carroyage[y] && currentMapData.carroyage[y][x - 1]) ? currentMapData.carroyage[y][x - 1] : ".";
                 let activeQuantite = null;
 
                 zoneData.forEach(zd => {
@@ -729,18 +755,12 @@ const downloadCanvas = () => {
 
     let x = 0;
     let y = 0;
-    let xSize = 1.1;
-    let ySize = 0.99;
+    const xSize = 1.07;
+    const ySize = 0.99;
 
     for (let posY = -50; posY < mapImage.height; posY += 106 * ySize) {
         for (let posX = -50; posX < mapImage.width; posX += 106 * xSize) {
-            if (x === 8) {
-                xSize = 1.80;
-            } else {
-                xSize = 1.07;
-            }
-
-            const zoneName = (currentMapData.carroyage[y] && currentMapData.carroyage[y][x]) ? currentMapData.carroyage[y][x] : ".";
+            const zoneName = (x > 0 && currentMapData.carroyage[y] && currentMapData.carroyage[y][x - 1]) ? currentMapData.carroyage[y][x - 1] : ".";
             let activeQuantite = null;
 
             zoneData.forEach(zd => {
@@ -882,21 +902,52 @@ const generateStats = async () => {
     // Check if Chart.js is ready
     if (typeof Chart === 'undefined') return;
 
-    if (yearChartInstance) yearChartInstance.destroy();
+    if (statsChartInstance) statsChartInstance.destroy();
 
-    // Years Chart (Bar)
-    const yearLabels = Object.keys(yearsMap).sort();
-    const yearValues = yearLabels.map(y => yearsMap[y]);
-    if (yearLabels.length > 0) {
-        const ctxYear = document.getElementById('yearChart').getContext('2d');
-        yearChartInstance = new Chart(ctxYear, {
+    const yearSelected = document.getElementById('yearSelected').checked;
+    const categorieSelected = document.getElementById('categorieSelected').checked;
+
+    let chartLabels = [];
+    let chartValues = [];
+    let chartTitle = "";
+    let chartLabel = "";
+    let chartColor = '#3b82f6';
+
+    if (yearSelected && !categorieSelected) {
+        // Show categories for selected year
+        chartLabels = Object.keys(categoriesMap).sort();
+        chartValues = chartLabels.map(c => categoriesMap[c]);
+        const selectedYear = document.getElementById('annee').value;
+        chartTitle = `Objets par Catégorie (Année ${selectedYear})`;
+        chartLabel = 'Quantité';
+        chartColor = '#10b981'; // Green for categories
+    } else {
+        // Show years (default, or filtered by category)
+        chartLabels = Object.keys(yearsMap).sort();
+        chartValues = chartLabels.map(y => yearsMap[y]);
+
+        if (categorieSelected) {
+            const selectedCat = document.getElementById('categorie').value;
+            chartTitle = `Objets par Année (Catégorie: ${selectedCat})`;
+        } else {
+            chartTitle = "Objets par Année";
+        }
+        chartLabel = 'Objets trouvés';
+        chartColor = '#3b82f6'; // Blue for years
+    }
+
+    document.getElementById('statsChartTitle').textContent = chartTitle;
+
+    if (chartLabels.length > 0) {
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        statsChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: yearLabels,
+                labels: chartLabels,
                 datasets: [{
-                    label: 'Objets trouvés',
-                    data: yearValues,
-                    backgroundColor: '#3b82f6',
+                    label: chartLabel,
+                    data: chartValues,
+                    backgroundColor: chartColor,
                     borderRadius: 6
                 }]
             },
@@ -966,6 +1017,7 @@ const setupDragAndDrop = () => {
             initApp();
         }
     });
+
 };
 
 // File Import triggers

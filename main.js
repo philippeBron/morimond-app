@@ -99,16 +99,17 @@ ipcMain.handle('file:select-and-import-data', async (event, filePath) => {
     
     try {
         // Create / Clear Table
-        await new Promise((resolve, reject) => {
-            db.createTable('fouilles', dbLocation, (succ, msg) => {
-                if (succ) resolve()
-                else reject(msg)
-            })
-        })
-        
-        if (db.valid('fouilles', dbLocation)) {
+        const fouillesPath = path.join(dbLocation, 'fouilles.json')
+        if (fs.existsSync(fouillesPath)) {
             await new Promise((resolve, reject) => {
                 db.clearTable('fouilles', dbLocation, (succ, msg) => {
+                    if (succ) resolve()
+                    else reject(msg)
+                })
+            })
+        } else {
+            await new Promise((resolve, reject) => {
+                db.createTable('fouilles', dbLocation, (succ, msg) => {
                     if (succ) resolve()
                     else reject(msg)
                 })
@@ -174,16 +175,17 @@ ipcMain.handle('file:select-and-import-carroyage', async (event, filePath) => {
     }
     
     try {
-        await new Promise((resolve, reject) => {
-            db.createTable('carroyage', dbLocation, (succ, msg) => {
-                if (succ) resolve()
-                else reject(msg)
-            })
-        })
-        
-        if (db.valid('carroyage', dbLocation)) {
+        const carroyagePath = path.join(dbLocation, 'carroyage.json')
+        if (fs.existsSync(carroyagePath)) {
             await new Promise((resolve, reject) => {
                 db.clearTable('carroyage', dbLocation, (succ, msg) => {
+                    if (succ) resolve()
+                    else reject(msg)
+                })
+            })
+        } else {
+            await new Promise((resolve, reject) => {
+                db.createTable('carroyage', dbLocation, (succ, msg) => {
                     if (succ) resolve()
                     else reject(msg)
                 })
