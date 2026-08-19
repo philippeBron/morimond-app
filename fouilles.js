@@ -1,3 +1,6 @@
+// Bridge to support both Electron (window.api) and Browser/GitHub Pages (window.webApi)
+const api = window.api || window.webApi;
+
 // State variables for interactive map
 let zoom = 0.12;
 let panX = 20;
@@ -23,7 +26,7 @@ const initApp = async () => {
     let unitesStrat = [];
 
     try {
-        const data = await window.api.dbGetAll('fouilles');
+        const data = await api.dbGetAll('fouilles');
         if (data && data.length > 0) {
             data.forEach(element => {
                 let yearExists = false;
@@ -148,21 +151,21 @@ const selectorCheck = async () => {
     try {
         let data = [];
         if (yearSelected && categorieSelected && uniteStratSelected) {
-            data = await window.api.dbGetRows('fouilles', { date: year, categorie: categorie, us: stratUnit });
+            data = await api.dbGetRows('fouilles', { date: year, categorie: categorie, us: stratUnit });
         } else if (yearSelected && categorieSelected) {
-            data = await window.api.dbGetRows('fouilles', { date: year, categorie: categorie });
+            data = await api.dbGetRows('fouilles', { date: year, categorie: categorie });
         } else if (categorieSelected && uniteStratSelected) {
-            data = await window.api.dbGetRows('fouilles', { categorie: categorie, us: stratUnit });
+            data = await api.dbGetRows('fouilles', { categorie: categorie, us: stratUnit });
         } else if (yearSelected && uniteStratSelected) {
-            data = await window.api.dbGetRows('fouilles', { date: year, us: stratUnit });
+            data = await api.dbGetRows('fouilles', { date: year, us: stratUnit });
         } else if (yearSelected) {
-            data = await window.api.dbGetRows('fouilles', { date: year });
+            data = await api.dbGetRows('fouilles', { date: year });
         } else if (categorieSelected) {
-            data = await window.api.dbGetRows('fouilles', { categorie: categorie });
+            data = await api.dbGetRows('fouilles', { categorie: categorie });
         } else if (uniteStratSelected) {
-            data = await window.api.dbGetRows('fouilles', { us: stratUnit });
+            data = await api.dbGetRows('fouilles', { us: stratUnit });
         } else {
-            data = await window.api.dbGetAll('fouilles');
+            data = await api.dbGetAll('fouilles');
         }
         selectorUpdate(data);
 
@@ -304,7 +307,7 @@ const triggerDisplayMap = async () => {
     document.getElementById('dataTitle').innerHTML = dataResult.title || "Plan de Carroyage";
 
     if (!currentMapData) {
-        currentMapData = await window.api.getCarroyageJson();
+        currentMapData = await api.getCarroyageJson();
     }
 
     if (!mapImage) {
@@ -572,35 +575,35 @@ const getData = async () => {
 
     try {
         if (yearSelected && categorieSelected && uniteStratSelected) {
-            data = await window.api.dbGetRows('fouilles', { date: year, categorie: categorie, us: stratUnit });
+            data = await api.dbGetRows('fouilles', { date: year, categorie: categorie, us: stratUnit });
             title = `Année ${year}, catégorie ${categorie}, US ${stratUnit}`;
             type = 'multi';
         } else if (yearSelected && categorieSelected) {
-            data = await window.api.dbGetRows('fouilles', { date: year, categorie: categorie });
+            data = await api.dbGetRows('fouilles', { date: year, categorie: categorie });
             title = `Année ${year}, catégorie ${categorie}`;
             type = 'multi';
         } else if (categorieSelected && uniteStratSelected) {
-            data = await window.api.dbGetRows('fouilles', { categorie: categorie, us: stratUnit });
+            data = await api.dbGetRows('fouilles', { categorie: categorie, us: stratUnit });
             title = `Catégorie ${categorie}, US ${stratUnit}`;
             type = 'multi';
         } else if (yearSelected && uniteStratSelected) {
-            data = await window.api.dbGetRows('fouilles', { date: year, us: stratUnit });
+            data = await api.dbGetRows('fouilles', { date: year, us: stratUnit });
             title = `Année ${year}, US ${stratUnit}`;
             type = 'mono';
         } else if (yearSelected) {
-            data = await window.api.dbGetRows('fouilles', { date: year });
+            data = await api.dbGetRows('fouilles', { date: year });
             title = `Année ${year}`;
             type = 'mono';
         } else if (categorieSelected) {
-            data = await window.api.dbGetRows('fouilles', { categorie: categorie });
+            data = await api.dbGetRows('fouilles', { categorie: categorie });
             title = `Catégorie ${categorie}`;
             type = 'multi';
         } else if (uniteStratSelected) {
-            data = await window.api.dbGetRows('fouilles', { us: stratUnit });
+            data = await api.dbGetRows('fouilles', { us: stratUnit });
             title = `US ${stratUnit}`;
             type = 'mono';
         } else {
-            data = await window.api.dbGetAll('fouilles');
+            data = await api.dbGetAll('fouilles');
             title = "Toutes les fouilles";
             type = 'multi';
         }
@@ -993,8 +996,10 @@ const setupDragAndDrop = () => {
         const dt = e.dataTransfer;
         const files = dt.files;
         if (files.length > 0) {
-            const filePath = window.api.getFilePath ? window.api.getFilePath(files[0]) : files[0].path;
-            const result = await window.api.selectAndImportData(filePath);
+            const file = files[0];
+            const result = window.api
+                ? await window.api.selectAndImportData(file.path)
+                : await window.webApi.selectAndImportData(file);
             alert(result.message);
             initApp();
         }
@@ -1004,8 +1009,10 @@ const setupDragAndDrop = () => {
         const dt = e.dataTransfer;
         const files = dt.files;
         if (files.length > 0) {
-            const filePath = window.api.getFilePath ? window.api.getFilePath(files[0]) : files[0].path;
-            const result = await window.api.selectAndImportCarroyage(filePath);
+            const file = files[0];
+            const result = window.api
+                ? await window.api.selectAndImportCarroyage(file.path)
+                : await window.webApi.selectAndImportCarroyage(file);
             alert(result.message);
             initApp();
         }
@@ -1015,16 +1022,51 @@ const setupDragAndDrop = () => {
 
 // File Import triggers
 const importDataFile = async () => {
-    const result = await window.api.selectAndImportData();
-    if (result) {
+    if (window.api) {
+        const result = await window.api.selectAndImportData();
+        if (result) {
+            alert(result.message);
+            initApp();
+        }
+    } else {
+        triggerWebDataUpload();
+    }
+};
+
+const importCarroyageFile = async () => {
+    if (window.api) {
+        const result = await window.api.selectAndImportCarroyage();
+        if (result) {
+            alert(result.message);
+            initApp();
+        }
+    } else {
+        triggerWebCarroyageUpload();
+    }
+};
+
+// Web-specific file upload helpers
+const triggerWebDataUpload = () => {
+    document.getElementById('webDataFileInput').click();
+};
+
+const triggerWebCarroyageUpload = () => {
+    document.getElementById('webCarroyageFileInput').click();
+};
+
+const handleWebDataFileInput = async (input) => {
+    if (input.files && input.files.length > 0) {
+        const file = input.files[0];
+        const result = await window.webApi.selectAndImportData(file);
         alert(result.message);
         initApp();
     }
 };
 
-const importCarroyageFile = async () => {
-    const result = await window.api.selectAndImportCarroyage();
-    if (result) {
+const handleWebCarroyageFileInput = async (input) => {
+    if (input.files && input.files.length > 0) {
+        const file = input.files[0];
+        const result = await window.webApi.selectAndImportCarroyage(file);
         alert(result.message);
         initApp();
     }
