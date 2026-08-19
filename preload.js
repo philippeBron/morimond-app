@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron')
+const { contextBridge, ipcRenderer, webUtils } = require('electron')
 
 contextBridge.exposeInMainWorld('api', {
     dbGetAll: (table) => ipcRenderer.invoke('db:getAll', table),
@@ -8,5 +8,7 @@ contextBridge.exposeInMainWorld('api', {
     getCarroyageJson: () => ipcRenderer.invoke('db:get-carroyage-json'),
     closeCurrentWindow: () => ipcRenderer.send('window:close'),
     onFouillesLoad: (callback) => ipcRenderer.on('fouilles:load', () => callback()),
-    onCarroyageLoad: (callback) => ipcRenderer.on('carroyage:load', () => callback())
+    onCarroyageLoad: (callback) => ipcRenderer.on('carroyage:load', () => callback()),
+    getFilePath: (file) => webUtils.getPathForFile(file)
 })
+

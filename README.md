@@ -70,7 +70,7 @@ Les fichiers compilés et les installateurs sont générés dans le dossier `dis
 
 ## ⚙️ Configuration cartographique
 
-Le fond de carte utilisé pour les projections se situe dans `assets/img/plan-v2_2019.jpg`. 
+Le fond de carte utilisé pour les projections se situe dans `assets/img/plan-morimond.jpg`. 
 Pour un affichage correct du carroyage :
 *   Sa taille de référence est de `4218x5318` pixels.
 *   Les carreaux de la grille terrain y correspondent à des zones de `106x106` pixels.

@@ -281,7 +281,7 @@ const triggerDisplayMap = async () => {
             drawMapInteractive();
             resetZoomAndPan();
         };
-        mapImage.src = './assets/img/plan-v2_2019.jpg';
+        mapImage.src = './assets/img/plan-morimond.jpg';
     } else {
         drawMapInteractive();
     }
@@ -343,18 +343,12 @@ const drawMapInteractive = () => {
         drawnCells = [];
         let x = 0;
         let y = 0;
-        let xSize = 1.1;
-        let ySize = 0.99;
+        const xSize = 1.07;
+        const ySize = 0.99;
 
         for (let posY = -50; posY < mapImage.height; posY += 106 * ySize) {
             for (let posX = -50; posX < mapImage.width; posX += 106 * xSize) {
-                if (x === 8) {
-                    xSize = 1.80;
-                } else {
-                    xSize = 1.07;
-                }
-
-                const zoneName = (currentMapData.carroyage[y] && currentMapData.carroyage[y][x]) ? currentMapData.carroyage[y][x] : ".";
+                const zoneName = (x > 0 && currentMapData.carroyage[y] && currentMapData.carroyage[y][x - 1]) ? currentMapData.carroyage[y][x - 1] : ".";
                 let activeQuantite = null;
 
                 zoneData.forEach(zd => {
@@ -726,18 +720,12 @@ const downloadCanvas = () => {
 
     let x = 0;
     let y = 0;
-    let xSize = 1.1;
-    let ySize = 0.99;
+    const xSize = 1.07;
+    const ySize = 0.99;
 
     for (let posY = -50; posY < mapImage.height; posY += 106 * ySize) {
         for (let posX = -50; posX < mapImage.width; posX += 106 * xSize) {
-            if (x === 8) {
-                xSize = 1.80;
-            } else {
-                xSize = 1.07;
-            }
-
-            const zoneName = (currentMapData.carroyage[y] && currentMapData.carroyage[y][x]) ? currentMapData.carroyage[y][x] : ".";
+            const zoneName = (x > 0 && currentMapData.carroyage[y] && currentMapData.carroyage[y][x - 1]) ? currentMapData.carroyage[y][x - 1] : ".";
             let activeQuantite = null;
 
             zoneData.forEach(zd => {
@@ -902,7 +890,7 @@ const generateStats = async () => {
         // Show years (default, or filtered by category)
         chartLabels = Object.keys(yearsMap).sort();
         chartValues = chartLabels.map(y => yearsMap[y]);
-        
+
         if (categorieSelected) {
             const selectedCat = document.getElementById('categorie').value;
             chartTitle = `Objets par Année (Catégorie: ${selectedCat})`;
@@ -973,7 +961,7 @@ const setupDragAndDrop = () => {
         const dt = e.dataTransfer;
         const files = dt.files;
         if (files.length > 0) {
-            const filePath = files[0].path;
+            const filePath = window.api.getFilePath ? window.api.getFilePath(files[0]) : files[0].path;
             const result = await window.api.selectAndImportData(filePath);
             alert(result.message);
             initApp();
@@ -984,12 +972,13 @@ const setupDragAndDrop = () => {
         const dt = e.dataTransfer;
         const files = dt.files;
         if (files.length > 0) {
-            const filePath = files[0].path;
+            const filePath = window.api.getFilePath ? window.api.getFilePath(files[0]) : files[0].path;
             const result = await window.api.selectAndImportCarroyage(filePath);
             alert(result.message);
             initApp();
         }
     });
+
 };
 
 // File Import triggers
