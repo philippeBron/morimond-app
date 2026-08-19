@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Load FontAwesome icons for a premium look -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Load Chart.js CDN for statistics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Load SheetJS CDN for browser-side Excel imports -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Load web-specific db and preloads BEFORE fouilles.js -->
+    <script src="./web.js"></script>
+    <script src="./fouilles.js"></script>
+    <title>Chantier de Morimond - Gestion & Carroyage (Web)</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --sidebar-bg: #111827;
+            --card-bg: rgba(22, 28, 45, 0.6);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --primary-glow: rgba(59, 130, 246, 0.3);
+            --accent: #f59e0b;
+            --success: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(17, 24, 39, 0.3) 0px, transparent 50%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Layout Structure */
+        .dashboard-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 320px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--card-border);
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .brand img {
+            height: 48px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #fff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Filter Section in Sidebar */
+        .filter-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .filter-group-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .filter-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: var(--transition);
+        }
+
+        .filter-item:hover {
+            border-color: rgba(59, 130, 246, 0.2);
+            background: rgba(30, 41, 59, 0.3);
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Switch Toggle Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #374151;
+            transition: .3s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #0f172a;
+            color: #fff;
+            font-family: inherit;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        /* Action Buttons */
+        .sidebar-actions {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn {
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Main Content Panel */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* Tabs styling */
+        .tabs-header {
+            background: #111827;
+            padding: 0 32px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            flex-shrink: 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            height: 100%;
+            align-items: flex-end;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab:hover {
+            color: #fff;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .quick-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .quick-info span {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            color: #fff;
+        }
+
+        /* Tab Content panels */
+        .tab-content {
+            flex-grow: 1;
+            padding: 32px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .panel {
+            display: none;
+            height: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .panel.active {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card panels */
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        /* Interactive Canvas container */
+        .canvas-container {
+            flex-grow: 1;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #030712;
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .canvas-controls {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .canvas-btn {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+        }
+
+        .canvas-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        #carroyage {
+            cursor: grab;
+        }
+
+        #carroyage:active {
+            cursor: grabbing;
+        }
+
+        /* Tooltip Floating Style */
+        .map-tooltip {
+            position: absolute;
+            background: rgba(17, 24, 39, 0.95);
+            border: 1px solid var(--primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #fff;
+            pointer-events: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+        }
+
+        /* Statistics Layout */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .stat-icon.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .stat-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+        }
+
+        .stat-details h4 {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-details p {
+            margin: 4px 0 0 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        /* Imports Grid & Drag-Drop Styles */
+        .import-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 800px) {
+            .import-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 40px 24px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.01);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.03);
+            color: #fff;
+        }
+
+        .drop-zone i {
+            font-size: 40px;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .drop-zone:hover i, .drop-zone.dragover i {
+            color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .drop-zone-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .drop-zone-text strong {
+            color: #fff;
+        }
+
+        /* Table custom scroll and styling */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+
+        table.table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table.table th, table.table td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        table.table th {
+            font-weight: 600;
+            color: #fff;
+            background: #111827;
+        }
+
+        table.table tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        table.table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Legend box on map */
+        .map-legend {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid var(--card-border);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        .legend-title {
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 32px;
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            background: #0b0f19;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body onload="initApp()">
+    <!-- Hidden web file inputs -->
+    <input type="file" id="webDataFileInput" style="display:none" onchange="handleWebDataFileInput(this)" accept=".xlsx" />
+    <input type="file" id="webCarroyageFileInput" style="display:none" onchange="handleWebCarroyageFileInput(this)" accept=".xlsx" />
+
+    <div class="dashboard-container">
+        <!-- Sidebar Panel -->
+        <aside class="sidebar">
+            <div class="brand">
+                <img src="./assets/img/arton218-21877.png" alt="Morimond" />
+                <div>
+                    <h1>Chantier Abbaye<br/>de Morimond</h1>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="filter-section">
+                <div class="filter-group-title">Filtres de Carroyage</div>
+                
+                <!-- Année Filter -->
+                <div class="filter-item">
+                    <div class="filter-header">
+                        <span class="filter-label"><i class="fa-solid fa-calendar-days text-muted"></i> Année</span>
+                        <label class="switch">
+                            <input type="checkbox" id="yearSelected" name="yearSelected" onclick="selectorCheck()" />
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <select class="form-control" name="annee" id="annee" onchange="selectorCheck()"></select>
+                </div>
+
+                <!-- Catégorie Filter -->
+                <div class="filter-item">
+                    <div class="filter-header">
+                        <span class="filter-label"><i class="fa-solid fa-tags text-muted"></i> Catégorie</span>
+                        <label class="switch">
+                            <input type="checkbox" id="categorieSelected" name="categorieSelected" onclick="selectorCheck()" />
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <select class="form-control" name="categorie" id="categorie" onchange="selectorCheck()"></select>
+                </div>
+
+                <!-- US Filter -->
+                <div class="filter-item">
+                    <div class="filter-header">
+                        <span class="filter-label"><i class="fa-solid fa-layer-group text-muted"></i> Unité Strat. (US)</span>
+                        <label class="switch">
+                            <input type="checkbox" id="uniteStratSelected" name="uniteStratSelected" onclick="selectorCheck()" />
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <select class="form-control" name="uniteStrat" id="uniteStrat" onchange="selectorCheck()"></select>
+                </div>
+            </div>
+
+            <!-- Sidebar Buttons / Actions -->
+            <div class="sidebar-actions">
+                <button type="button" class="btn btn-primary" onclick="triggerDisplayMap()">
+                    <i class="fa-solid fa-map"></i> Projeter sur la Carte
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="displayDataTab()">
+                    <i class="fa-solid fa-table-list"></i> Afficher les Données
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Tabs Navigation Header -->
+            <header class="tabs-header">
+                <nav class="tabs">
+                    <button id="tab-map-panel" class="tab active" onclick="switchTab('map-panel', this)">
+                        <i class="fa-solid fa-map-location-dot"></i> Carte du Chantier
+                    </button>
+                    <button id="tab-table-panel" class="tab" onclick="switchTab('table-panel', this)">
+                        <i class="fa-solid fa-table"></i> Données de Fouilles
+                    </button>
+                    <button id="tab-stats-panel" class="tab" onclick="switchTab('stats-panel', this)">
+                        <i class="fa-solid fa-chart-pie"></i> Statistiques & Graphiques
+                    </button>
+                    <button id="tab-import-panel" class="tab" onclick="switchTab('import-panel', this)">
+                        <i class="fa-solid fa-file-import"></i> Gestion & Importations
+                    </button>
+                </nav>
+                <div class="quick-info">
+                    Base active : <span id="db-status-badge">Chargée</span>
+                </div>
+            </header>
+
+            <!-- Tab Panels Content Container -->
+            <div class="tab-content">
+                
+                <!-- Map Panel -->
+                <div id="map-panel" class="panel active">
+                    <div class="content-card" style="display: flex; flex-direction: column; flex-grow: 1; height: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h2 style="margin: 0; font-size: 18px;" id="dataTitle">Plan de Carroyage</h2>
+                            <a id="download" download="Carroyage.png" href="#">
+                                <button type="button" class="btn btn-success" style="padding: 8px 16px; font-size: 13px;" onclick="downloadCanvas()">
+                                    <i class="fa-solid fa-download"></i> Télécharger l'image
+                                </button>
+                            </a>
+                        </div>
+                        
+                        <div class="canvas-container">
+                            <div class="canvas-controls">
+                                <button class="canvas-btn" onclick="adjustZoom(1.2)" title="Zoomer"><i class="fa-solid fa-plus"></i></button>
+                                <button class="canvas-btn" onclick="adjustZoom(0.8)" title="Dézoomer"><i class="fa-solid fa-minus"></i></button>
+                                <button class="canvas-btn" onclick="resetZoomAndPan()" title="Réinitialiser la vue"><i class="fa-solid fa-arrows-to-dot"></i></button>
+                            </div>
+                            <canvas id="carroyage">
+                                <p>Carroyage du site de l'abbaye de Morimond</p>
+                            </canvas>
+                            <div class="map-tooltip" id="mapTooltip"></div>
+                            
+                            <!-- Color Density Legend inside map container -->
+                            <div class="map-legend" id="mapLegend" style="display: none;">
+                                <div class="legend-title">Densité d'objets</div>
+                                <div class="legend-item"><div class="legend-color" style="background: rgba(0,255,0,0.5)"></div><span>Trouvaille unique (mono)</span></div>
+                                <div class="legend-item"><div class="legend-color" style="background: rgba(254, 254, 177, 0.8)"></div><span>Faible (1 à 5)</span></div>
+                                <div class="legend-item"><div class="legend-color" style="background: rgba(253, 175, 79, 0.8)"></div><span>Moyenne (6 à 10)</span></div>
+                                <div class="legend-item"><div class="legend-color" style="background: rgba(237, 80, 40, 0.8)"></div><span>Élevée (11 à 15)</span></div>
+                                <div class="legend-item"><div class="legend-color" style="background: rgba(100, 23, 14, 0.8)"></div><span>Très élevée (16+)</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Panel -->
+                <div id="table-panel" class="panel">
+                    <div class="content-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                            <h2 style="margin: 0; font-size: 18px;" id="tableDataTitle">Tableau des Résultats</h2>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <input type="text" id="tableSearch" placeholder="Rechercher une zone..." class="form-control" style="width: 220px; margin-bottom: 0;" oninput="filterTableData()" />
+                            </div>
+                        </div>
+                        <div class="table-container" id="dataTable">
+                            <p style="color: var(--text-muted); text-align: center; padding: 24px;">Aucune donnée projetée. Sélectionnez des filtres et cliquez sur "Afficher les Données".</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Dashboard Panel -->
+                <div id="stats-panel" class="panel">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fa-solid fa-cube"></i></div>
+                            <div class="stat-details">
+                                <h4>Total Objets</h4>
+                                <p id="stat-total-objects">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon success"><i class="fa-solid fa-border-all"></i></div>
+                            <div class="stat-details">
+                                <h4>Zones Fouillées</h4>
+                                <p id="stat-total-zones">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon warning"><i class="fa-solid fa-layer-group"></i></div>
+                            <div class="stat-details">
+                                <h4>Unités Strat. (US)</h4>
+                                <p id="stat-total-us">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-row">
+                        <div class="content-card" style="min-height: 320px;">
+                            <h3 id="statsChartTitle" style="margin-top:0; font-size:16px;">Objets par Année</h3>
+                            <div style="position: relative; height: 260px;">
+                                <canvas id="statsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import / Database Management Panel -->
+                <div id="import-panel" class="panel">
+                    <div class="content-card">
+                        <h2 style="margin-top:0; font-size:18px; margin-bottom: 24px;">Base de Données et Fichiers Source</h2>
+                        
+                        <div class="import-grid">
+                            <!-- Import Données Fouilles Card -->
+                            <div class="content-card" style="background: rgba(255,255,255,0.01);">
+                                <h3 style="margin-top: 0; font-size: 16px;"><i class="fa-solid fa-file-excel" style="color: #10b981; margin-right: 8px;"></i>Données de Fouilles</h3>
+                                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
+                                    Permet d'importer le fichier Excel consolidé contenant la liste des objets découverts, leurs coordonnées de zone, la catégorie, et l'US associée.
+                                </p>
+                                <div class="drop-zone" id="drop-zone-data" onclick="triggerWebDataUpload()">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <div class="drop-zone-text">
+                                        <strong>Cliquez pour charger</strong> ou glissez-déposez le fichier Excel <code>.xlsx</code>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Import Carroyage Card -->
+                            <div class="content-card" style="background: rgba(255,255,255,0.01);">
+                                <h3 style="margin-top: 0; font-size: 16px;"><i class="fa-solid fa-map-location" style="color: #3b82f6; margin-right: 8px;"></i>Définition du Carroyage</h3>
+                                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
+                                    Permet de charger la grille de carroyage au format Excel configurant la correspondance géographique des zones fouillées sur le terrain.
+                                </p>
+                                <div class="drop-zone" id="drop-zone-carroyage" onclick="triggerWebCarroyageUpload()">
+                                    <i class="fa-solid fa-file-waveform"></i>
+                                    <div class="drop-zone-text">
+                                        <strong>Cliquez pour charger</strong> ou glissez-déposez le fichier Excel <code>.xlsx</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px; padding: 16px; border-radius: 8px; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.1); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 12px;">
+                            <i class="fa-solid fa-circle-info" style="color: var(--primary); font-size: 16px;"></i>
+                            <span>Les fichiers Excel importés sont convertis en base de données IndexedDB locale. L'application conserve les données même si vous fermez le navigateur.</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <span>Gestionnaire de Chantier Archéologique - Abbaye de Morimond</span>
+                <i>&copy; fifouSoft 2026</i>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>
