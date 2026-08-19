@@ -1,5 +1,5 @@
 // Bridge to support both Electron (window.api) and Browser/GitHub Pages (window.webApi)
-const api = window.api || window.webApi;
+const getApi = () => window.api || window.webApi;
 
 // State variables for interactive map
 let zoom = 0.12;
@@ -26,6 +26,8 @@ const initApp = async () => {
     let unitesStrat = [];
 
     try {
+        const api = getApi();
+        if (!api) return;
         const data = await api.dbGetAll('fouilles');
         if (data && data.length > 0) {
             data.forEach(element => {
@@ -149,6 +151,8 @@ const selectorCheck = async () => {
     }
 
     try {
+        const api = getApi();
+        if (!api) return;
         let data = [];
         if (yearSelected && categorieSelected && uniteStratSelected) {
             data = await api.dbGetRows('fouilles', { date: year, categorie: categorie, us: stratUnit });
@@ -178,7 +182,8 @@ const selectorCheck = async () => {
                 dataTitleEl.innerHTML = dataResult.title || "Plan de Carroyage";
             }
             if (!currentMapData) {
-                currentMapData = await window.api.getCarroyageJson();
+                const api = getApi();
+                if (api) currentMapData = await api.getCarroyageJson();
             }
             if (!mapImage) {
                 mapImage = new Image();
@@ -292,7 +297,7 @@ const switchTab = (panelId, tabButton) => {
     if (panelId === 'map-panel') {
         setTimeout(drawMapInteractive, 50);
     } else if (panelId === 'stats-panel') {
-        generateStats();
+        setTimeout(generateStats, 50);
     }
 };
 
@@ -307,7 +312,8 @@ const triggerDisplayMap = async () => {
     document.getElementById('dataTitle').innerHTML = dataResult.title || "Plan de Carroyage";
 
     if (!currentMapData) {
-        currentMapData = await api.getCarroyageJson();
+        const api = getApi();
+        if (api) currentMapData = await api.getCarroyageJson();
     }
 
     if (!mapImage) {
@@ -574,6 +580,9 @@ const getData = async () => {
     let type = "mono";
 
     try {
+        const api = getApi();
+        if (!api) return { title: "", data: [], type: "mono" };
+
         if (yearSelected && categorieSelected && uniteStratSelected) {
             data = await api.dbGetRows('fouilles', { date: year, categorie: categorie, us: stratUnit });
             title = `Année ${year}, catégorie ${categorie}, US ${stratUnit}`;
@@ -923,11 +932,11 @@ const generateStats = async () => {
         chartColor = '#10b981'; // Green for categories
     } else {
         // Show years (default, or filtered by category)
-        chartLabels = Object.keys(yearsMap).sort();
+        chartLabels = Object.keys(yearsMap).sort((a, b) => Number(a) - Number(b));
         chartValues = chartLabels.map(y => yearsMap[y]);
 
         if (categorieSelected) {
-            const selectedCat = document.getElementById('categorie').value;
+            const selectedCat = document.getElementById('categorie')?.value;
             chartTitle = `Objets par Année (Catégorie: ${selectedCat})`;
         } else {
             chartTitle = "Objets par Année";
@@ -936,10 +945,14 @@ const generateStats = async () => {
         chartColor = '#3b82f6'; // Blue for years
     }
 
-    document.getElementById('statsChartTitle').textContent = chartTitle;
+    const titleEl = document.getElementById('statsChartTitle');
+    if (titleEl) {
+        titleEl.textContent = chartTitle;
+    }
 
-    if (chartLabels.length > 0) {
-        const ctx = document.getElementById('statsChart').getContext('2d');
+    const chartCanvas = document.getElementById('statsChart') || document.getElementById('yearChart');
+    if (chartLabels.length > 0 && chartCanvas) {
+        const ctx = chartCanvas.getContext('2d');
         statsChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -997,11 +1010,17 @@ const setupDragAndDrop = () => {
         const files = dt.files;
         if (files.length > 0) {
             const file = files[0];
-            const result = window.api
-                ? await window.api.selectAndImportData(file.path)
-                : await window.webApi.selectAndImportData(file);
-            alert(result.message);
-            initApp();
+            let result;
+            if (window.api) {
+                const filePath = window.api.getFilePath ? window.api.getFilePath(file) : file.path;
+                result = await window.api.selectAndImportData(filePath);
+            } else if (window.webApi) {
+                result = await window.webApi.selectAndImportData(file);
+            }
+            if (result) {
+                alert(result.message);
+                initApp();
+            }
         }
     });
 
@@ -1010,11 +1029,17 @@ const setupDragAndDrop = () => {
         const files = dt.files;
         if (files.length > 0) {
             const file = files[0];
-            const result = window.api
-                ? await window.api.selectAndImportCarroyage(file.path)
-                : await window.webApi.selectAndImportCarroyage(file);
-            alert(result.message);
-            initApp();
+            let result;
+            if (window.api) {
+                const filePath = window.api.getFilePath ? window.api.getFilePath(file) : file.path;
+                result = await window.api.selectAndImportCarroyage(filePath);
+            } else if (window.webApi) {
+                result = await window.webApi.selectAndImportCarroyage(file);
+            }
+            if (result) {
+                alert(result.message);
+                initApp();
+            }
         }
     });
 

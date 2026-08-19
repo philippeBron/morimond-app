@@ -85,7 +85,8 @@ ipcMain.handle('db:get-carroyage-json', async () => {
 ipcMain.handle('file:select-and-import-data', async (event, filePath) => {
     let file = filePath
     if (!file) {
-        const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+        const parentWin = mainWindow || BrowserWindow.getFocusedWindow()
+        const result = await dialog.showOpenDialog(parentWin, {
             properties: ['openFile'],
             filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
         })
@@ -118,22 +119,31 @@ ipcMain.handle('file:select-and-import-data', async (event, filePath) => {
         
         const rows = await readXlsxFile(file)
         
-        for (const element of rows) {
+        for (let i = 0; i < rows.length; i++) {
+            const element = rows[i]
+            if (!element || element.length === 0) continue
+            if (i === 0 && (element[0] === 'Zone' || element[0] === 'zone')) continue
+
             let obj = new Object()
             obj.zone = element[0]
             obj.categorie = element[1]
             obj.sousCategorie = element[2]
-            obj.quantite = element[3]
+            obj.quantite = typeof element[3] === 'number' ? element[3] : (parseInt(element[3]) || 0)
             obj.complement = element[4]
-            if (element[5] !== null) {
+            if (element[5] !== null && element[5] !== undefined) {
                 obj.us = element[5].toString()                
             } else {
-                obj.us = element[5]
+                obj.us = null
             }
-            if (element[6] !== null && typeof element[6] === 'number') {
-                obj.date = excelDateToJSDate(element[6]).getFullYear()
-            } else if (element[6] instanceof Date) {
-                obj.date = element[6].getFullYear()
+            if (element[6] !== null && element[6] !== undefined) {
+                if (typeof element[6] === 'number') {
+                    obj.date = excelDateToJSDate(element[6]).getFullYear()
+                } else if (element[6] instanceof Date) {
+                    obj.date = element[6].getFullYear()
+                } else {
+                    const parsedYear = parseInt(element[6])
+                    obj.date = !isNaN(parsedYear) ? parsedYear : null
+                }
             } else {
                 obj.date = null
             }
@@ -162,7 +172,8 @@ ipcMain.handle('file:select-and-import-data', async (event, filePath) => {
 ipcMain.handle('file:select-and-import-carroyage', async (event, filePath) => {
     let file = filePath
     if (!file) {
-        const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+        const parentWin = mainWindow || BrowserWindow.getFocusedWindow()
+        const result = await dialog.showOpenDialog(parentWin, {
             properties: ['openFile'],
             filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
         })
@@ -197,7 +208,7 @@ ipcMain.handle('file:select-and-import-carroyage', async (event, filePath) => {
         for (const element of rows) {
             let tab = []
             for (let index = 0; index < 40; index++) {
-                tab.push(element[index])
+                tab.push(element[index] !== undefined ? element[index] : ".")
             }
             
             if (db.valid('carroyage', dbLocation)) {
